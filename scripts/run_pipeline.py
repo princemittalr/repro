@@ -19,6 +19,7 @@ from pathlib import Path
 
 from app.config import PROJECT_ROOT
 from app.events import EventBus, PipelineEvent
+from app.llm import friendly_error
 from app.pipeline import run_pipeline
 from app.reproduce import load_report
 
@@ -43,8 +44,12 @@ def main() -> None:
     bus = EventBus()
     bus.subscribe(print_event)
     start = time.perf_counter()
-    result = run_pipeline(args.video, repo=args.repo, app_dir=args.app, open_pr=not args.no_pr,
-                          report=load_report(args.report) if args.report else None, bus=bus)
+    try:
+        result = run_pipeline(args.video, repo=args.repo, app_dir=args.app, open_pr=not args.no_pr,
+                              report=load_report(args.report) if args.report else None, bus=bus)
+    except Exception as exc:  # noqa: BLE001 - the failed stage was already reported as an event
+        print(f"\nFAILED: {friendly_error(exc)}")
+        raise SystemExit(1) from None
 
     out = PROJECT_ROOT / "runs" / "pipeline" / f"{bus.run_id}.json"
     out.parent.mkdir(parents=True, exist_ok=True)

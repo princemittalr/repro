@@ -107,8 +107,12 @@ The quantity bug's correct behaviour is ambiguous: "stop at 0", "remove at 0" an
 all reasonable fixes, and the reference clamps at 1. Tests that assert "stays at 0" are reported
 as a reasonable alternative rather than forced to match.
 
-**Full pipeline** (`python -m scripts.eval_pipeline`): fix and PR results for the coupon and remove
-bugs are added here after the end-to-end evaluation run.
+**Full pipeline** (`python -m scripts.eval_pipeline`): checks that the agent's fix behaves like the
+reference fix on the same cart scenario, that the existing suite still passes, and that a PR opens.
+Model-driven results for the coupon and remove bugs are added here after the end-to-end run. The
+orchestration, the fix loop (with a scripted stand-in for the model: real edits, real test runs,
+escalation after two red runs, refused edits to existing tests), VERIFY and the PR text are covered
+offline by `tests/`.
 
 ## Quick start
 
