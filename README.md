@@ -6,7 +6,7 @@ Repro watches a screen recording of a bug, writes a failing Playwright test that
 fixes the code until the test passes, and opens a GitHub pull request, all autonomously.
 Built for the Nebius x NVIDIA Global AI Hackathon (Coding and Agentic Engineering track).
 
-> Status: Phase 1 (perception: screen recording to structured repro steps). The full README with
+> Status: Phase 2 (reproduce: repro steps to a failing Playwright test, run in a sandbox). The full README with
 > architecture and usage lands in Phase 6.
 
 ## How the models are routed
@@ -34,6 +34,8 @@ python -m scripts.perception_probe  # can the vision model watch a video?
 python -m scripts.record_sample     # record ShopLite bug videos into samples/
 python -m scripts.perceive samples/shoplite-coupon.mp4   # video -> repro steps JSON
 python -m scripts.eval_perception --modes hybrid video frames  # accuracy vs ground truth
+python -m scripts.reproduce samples/shoplite-coupon.mp4   # video -> red Playwright test
+python -m scripts.eval_reproduce    # end to end: red on buggy app, green on fixed app
 uvicorn app.main:app --reload   # http://127.0.0.1:8000/api/health
 ```
 
