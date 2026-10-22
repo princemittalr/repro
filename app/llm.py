@@ -32,6 +32,18 @@ class TruncatedReply(ValueError):
     """The model hit max_tokens before writing any answer."""
 
 
+def friendly_error(exc: Exception) -> str:
+    """A one-line explanation of a failure, for the UI and the CLI."""
+    status = getattr(exc, "status_code", None)
+    if status == 402:
+        return "Nebius Token Factory credits are exhausted (HTTP 402). Add credit to the account to run live."
+    if status == 401:
+        return "Nebius Token Factory rejected the API key (HTTP 401). Check NEBIUS_API_KEY in .env."
+    if status == 429:
+        return "Nebius Token Factory rate limit reached (HTTP 429). Wait a minute and try again."
+    return f"{type(exc).__name__}: {exc}"[:400]
+
+
 def chat(
     *,
     stage: str,

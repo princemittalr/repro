@@ -21,6 +21,7 @@ from typing import Any, Callable, Iterator, Literal
 
 from pydantic import BaseModel, Field
 
+from app.llm import friendly_error
 from app.usage import UsageTracker
 
 Stage = Literal["perceive", "triage", "reproduce", "research", "fix", "verify", "ship", "pipeline"]
@@ -72,7 +73,7 @@ class EventBus:
         try:
             yield reporter
         except Exception as exc:
-            reporter.failed(f"{type(exc).__name__}: {exc}")
+            reporter.failed(friendly_error(exc))
             raise
         if not reporter.finished:
             reporter.done(f"{stage.capitalize()} finished")

@@ -25,6 +25,7 @@ from typing import AsyncIterator, Literal
 
 from app.config import PROJECT_ROOT
 from app.events import EventBus, PipelineEvent
+from app.llm import friendly_error
 
 RUNS_DIR = PROJECT_ROOT / "runs" / "pipeline"
 DEMO_DIR = PROJECT_ROOT / "demo"         # recorded runs that ship with the repo, one per sample
@@ -89,7 +90,7 @@ class RunStore:
                  "usage": bus.tracker.summary()}, indent=2), encoding="utf-8")
         except Exception as exc:  # noqa: BLE001 - report any failure to the browser instead of hanging
             traceback.print_exc()
-            bus.emit("pipeline", "failed", f"{type(exc).__name__}: {exc}"[:400])
+            bus.emit("pipeline", "failed", friendly_error(exc))
         finally:
             run.finished = True
 
