@@ -122,5 +122,29 @@ class ShipAndSourceTest(unittest.TestCase):
             self.assertIn('data-testid="row-${id}"', source_elements(root))
 
 
+class ReplayStreamTest(unittest.TestCase):
+    def test_replay_streams_every_event_then_ends(self):
+        import asyncio
+        import json
+
+        from app.runs import RunStore, stream
+
+        bus = EventBus(run_id="rec")
+        with bus.stage("triage"):
+            pass
+        bus.emit("pipeline", "done", "ok")
+        with tempfile.TemporaryDirectory() as tmp:
+            recording = Path(tmp) / "rec.json"
+            recording.write_text(json.dumps({"events": bus.dump()}), encoding="utf-8")
+            run = RunStore().start_replay(recording, Path("video.mp4"), "video.mp4")
+
+            async def collect():
+                return [chunk async for chunk in stream(run)]
+
+            chunks = asyncio.run(collect())
+        self.assertEqual(sum(c.startswith("id: ") for c in chunks), 3)
+        self.assertTrue(chunks[-1].startswith("event: end"))
+
+
 if __name__ == "__main__":
     unittest.main()
