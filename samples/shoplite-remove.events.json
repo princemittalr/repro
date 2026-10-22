@@ -1,0 +1,29 @@
+{
+  "scenario": "remove",
+  "events": [
+    {
+      "action": "click",
+      "test_id": "add-cap",
+      "value": null,
+      "timestamp_s": 1.74
+    },
+    {
+      "action": "click",
+      "test_id": "add-stickers",
+      "value": null,
+      "timestamp_s": 3.19
+    },
+    {
+      "action": "click",
+      "test_id": "add-mug",
+      "value": null,
+      "timestamp_s": 4.57
+    },
+    {
+      "action": "click",
+      "test_id": "remove-cap",
+      "value": null,
+      "timestamp_s": 6.56
+    }
+  ]
+}

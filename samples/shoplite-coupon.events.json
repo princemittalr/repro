@@ -1,0 +1,41 @@
+{
+  "scenario": "coupon",
+  "events": [
+    {
+      "action": "click",
+      "test_id": "add-tee",
+      "value": null,
+      "timestamp_s": 1.96
+    },
+    {
+      "action": "click",
+      "test_id": "add-mug",
+      "value": null,
+      "timestamp_s": 3.37
+    },
+    {
+      "action": "type",
+      "test_id": "coupon-input",
+      "value": "SAVE10",
+      "timestamp_s": 5.1
+    },
+    {
+      "action": "click",
+      "test_id": "apply-coupon",
+      "value": null,
+      "timestamp_s": 6.8
+    },
+    {
+      "action": "type",
+      "test_id": "coupon-input",
+      "value": "SAVE10",
+      "timestamp_s": 9.14
+    },
+    {
+      "action": "click",
+      "test_id": "apply-coupon",
+      "value": null,
+      "timestamp_s": 10.85
+    }
+  ]
+}
