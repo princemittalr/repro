@@ -49,3 +49,33 @@ class LLMCall(BaseModel):
     completion_tokens: int = 0
     latency_s: float = 0.0
     cost_usd: float | None = None
+
+
+ReproStatus = Literal["red", "green", "broken"]
+
+
+class TestRun(BaseModel):
+    """Outcome of running one generated Playwright test in the sandbox."""
+
+    outcome: Literal["passed", "failed", "error", "timeout", "rejected"]
+    message: str = ""
+    duration_s: float = 0.0
+    screenshot: str | None = Field(default=None, description="Path to a screenshot taken on failure")
+    page_snapshot: str | None = Field(default=None, description="Accessibility snapshot of the page at failure")
+
+
+class ReproAttempt(BaseModel):
+    attempt: int
+    model: str
+    code: str
+    run: TestRun
+    status: ReproStatus
+    diagnosis: str = Field(description="Why the attempt was classified this way")
+
+
+class ReproResult(BaseModel):
+    """Final outcome of the REPRODUCE stage."""
+
+    reproduced: bool
+    test_code: str | None = None
+    attempts: list[ReproAttempt]
