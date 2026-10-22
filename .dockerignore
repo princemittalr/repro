@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+.git/
+.claude/
+runs/
+uploads/
+**/node_modules/
+**/__pycache__/
+*.log

@@ -1,6 +1,6 @@
 # ShopLite
 
-A tiny checkout demo store used to showcase [Repro](https://github.com/) fixing real bugs end to end.
+A tiny checkout demo store used to showcase [Repro](https://github.com/princemittalr/repro) fixing real bugs end to end.
 
 > ShopLite contains **deliberate bugs**. Repro watches a screen recording of each one,
 > writes a failing Playwright test, fixes the code, and opens a pull request here.
