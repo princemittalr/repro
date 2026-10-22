@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShopLite</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <span class="brand">🛍️ ShopLite</span>
+    <span class="tag">Demo store</span>
+  </header>
+
+  <main class="layout">
+    <section aria-labelledby="products-title">
+      <h1 id="products-title">Products</h1>
+      <div id="products" class="products" data-testid="product-list"></div>
+    </section>
+
+    <aside class="cart" aria-labelledby="cart-title">
+      <h2 id="cart-title">Your cart</h2>
+      <ul id="cart-items" class="cart-items" data-testid="cart-items"></ul>
+      <p id="cart-empty" class="muted">Your cart is empty.</p>
+
+      <form id="coupon-form" class="coupon" data-testid="coupon-form">
+        <input id="coupon-input" name="coupon" placeholder="Coupon code" autocomplete="off" data-testid="coupon-input">
+        <button type="submit" data-testid="apply-coupon">Apply</button>
+      </form>
+      <p id="coupon-message" class="message" role="status" data-testid="coupon-message"></p>
+      <ul id="applied-coupons" class="applied" data-testid="applied-coupons"></ul>
+
+      <dl class="totals">
+        <div><dt>Subtotal</dt><dd id="subtotal" data-testid="subtotal">$0.00</dd></div>
+        <div><dt>Discount</dt><dd id="discount" data-testid="discount">-$0.00</dd></div>
+        <div><dt>Shipping</dt><dd id="shipping" data-testid="shipping">$0.00</dd></div>
+        <div class="grand"><dt>Total</dt><dd id="total" data-testid="total">$0.00</dd></div>
+      </dl>
+      <button id="checkout" class="checkout" data-testid="checkout" disabled>Checkout</button>
+    </aside>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

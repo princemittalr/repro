@@ -1,0 +1,29 @@
+{
+  "scenario": "quantity",
+  "events": [
+    {
+      "action": "click",
+      "test_id": "add-tee",
+      "value": null,
+      "timestamp_s": 1.74
+    },
+    {
+      "action": "click",
+      "test_id": "dec-tee",
+      "value": null,
+      "timestamp_s": 3.45
+    },
+    {
+      "action": "click",
+      "test_id": "dec-tee",
+      "value": null,
+      "timestamp_s": 5.13
+    },
+    {
+      "action": "click",
+      "test_id": "dec-tee",
+      "value": null,
+      "timestamp_s": 6.8
+    }
+  ]
+}

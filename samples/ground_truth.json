@@ -1,0 +1,18 @@
+{
+  "_comment": "What a correct perception of each sample must contain. Timestamps come from samples/*.events.json (written by scripts/record_sample.py).",
+  "target_keywords": {
+    "add-tee": ["classic tee"],
+    "add-mug": ["dev mug"],
+    "add-cap": ["logo cap"],
+    "add-stickers": ["sticker"],
+    "remove-cap": ["remove", "logo cap"],
+    "dec-tee": ["classic tee"],
+    "coupon-input": ["coupon"],
+    "apply-coupon": ["apply"]
+  },
+  "facts": {
+    "coupon": {"must_mention": ["6.50", "save10"], "must_not_mention": []},
+    "remove": {"must_mention": ["41.49", "logo cap"], "must_not_mention": ["remove next to sticker", "removing the sticker"]},
+    "quantity": {"must_mention": ["-2"], "must_not_mention": ["-$10.00"]}
+  }
+}
