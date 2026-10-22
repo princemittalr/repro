@@ -53,7 +53,19 @@ Requirements:
   selectors from the patterns you can see, e.g. a test id like "add-tee" suggests "remove-tee".
 - Assert the EXPECTED (correct) behaviour with `expect(...)`, using exact values computed from the
   prices or inputs, so the test FAILS while the bug exists and PASSES once it is fixed. Never assert
-  the buggy value.
+  the buggy value. When the report states an expected value, use it as written; work out only the
+  values it leaves out, counting every line the page shows (fees, shipping, taxes). Prefer literal
+  expected values (e.g. "$17.49"). If you
+  must read a value from the page to compute one, read it BEFORE the step that is supposed to change it.
+- The test must pass on ANY reasonable fix, not just one. First think of the different ways a
+  developer could fix the bug (e.g. a value stops at its minimum or maximum, the item is removed, the
+  action is ignored or shows an error). Assert exact values only where all of them agree; elsewhere
+  assert what every fix guarantees, e.g. that a value is never negative or that a total equals the sum
+  of the rows still shown, using `not_to_have_text(re.compile(...))` or values read from the page.
+  This applies to checks after intermediate steps too: if any step is part of the bug, don't assert
+  values right after it that depend on how it gets fixed.
+- To scope to one row or card, filter the row elements themselves, not their container, e.g.
+  `page.get_by_role("listitem").filter(has_text="Item name")`, or use the row's own test id.
 - Keep it short and readable: it ships in a pull request as the regression test.
 
 Reply with the complete test in a single ```python code block and nothing else."""
@@ -82,6 +94,7 @@ def _extract_code(reply: str) -> str:
 def _page_context(snapshot: dict) -> str:
     elements = "\n".join(
         f"- <{e['tag']}> testid={e['testid']!r} id={e['id']!r} text={e['text']!r}"
+        + (f" aria-label={e['label']!r}" if e.get("label") else "")
         for e in snapshot["elements"] if e.get("testid") or e["tag"] in ("button", "a", "input", "select", "textarea")
     )
     return (f"URL: {snapshot['url']}  Title: {snapshot['title']}\n\n"
@@ -89,15 +102,43 @@ def _page_context(snapshot: dict) -> str:
             f"HTML (trimmed):\n{snapshot['html']}")
 
 
-def _first_prompt(report: ReproReport, snapshot: dict) -> str:
+_UI_SUFFIXES = {".html", ".htm", ".js", ".jsx", ".ts", ".tsx", ".vue", ".svelte"}
+_SKIP_DIRS = {"node_modules", ".git", "dist", "build", "coverage", "test", "tests", "__tests__", "e2e"}
+_ELEMENT_ATTR = re.compile(r"data-testid|aria-label")
+
+
+def source_elements(app_dir: Path, limit_chars: int = 5000) -> str:
+    """Element templates from the app's front-end source: lines declaring a test id or aria-label.
+
+    The start page only shows what exists before any action. Rows, dialogs and
+    buttons created later (e.g. a cart line with its own Remove and quantity
+    buttons) are defined in templates, so listing those lines lets the first
+    attempt pick real selectors instead of guessing.
+    """
+    lines: list[str] = []
+    for path in sorted(app_dir.rglob("*")):
+        if (path.suffix not in _UI_SUFFIXES or not path.is_file() or path.stat().st_size > 200_000
+                or _SKIP_DIRS & set(path.relative_to(app_dir).parts) or ".min." in path.name):
+            continue
+        for line in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+            line = line.strip()
+            if _ELEMENT_ATTR.search(line) and line not in lines and len(line) < 300:
+                lines.append(line)
+    return "\n".join(lines)[:limit_chars]
+
+
+def _first_prompt(report: ReproReport, snapshot: dict, templates: str) -> str:
+    source = (f"\n\nElement templates from the app's source code (these include elements that only appear "
+              f"after an action, like list rows and their buttons):\n{templates}") if templates else ""
     return (f"Bug report (from a screen recording):\n{report.model_dump_json(indent=1)}\n\n"
-            f"Start page of the app under test:\n{_page_context(snapshot)}\n\nWrite the test.")
+            f"Start page of the app under test:\n{_page_context(snapshot)}{source}\n\nWrite the test.")
 
 
 def _feedback(attempt: ReproAttempt) -> str:
     parts = [f"Your test was run against the app. Result: {attempt.status.upper()}. {attempt.diagnosis}"]
     if attempt.run.page_snapshot:
-        parts.append(f"Accessibility tree of the page when it stopped:\n{attempt.run.page_snapshot}")
+        parts.append("The page when the test stopped (use these exact values and selectors; elements that "
+                     f"appeared and vanished during the test are listed too):\n{attempt.run.page_snapshot}")
     parts.append("Fix the test and reply with the complete corrected test in one ```python block.")
     return "\n\n".join(parts)
 
@@ -122,7 +163,7 @@ def reproduce(report: ReproReport, app_dir: Path, tracker: UsageTracker | None =
         artifacts = artifacts_dir or Path(tmp)
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": _first_prompt(report, page_snapshot(base_url))},
+            {"role": "user", "content": _first_prompt(report, page_snapshot(base_url), source_elements(app_dir))},
         ]
 
         for n in range(1, MAX_ATTEMPTS + 1):
