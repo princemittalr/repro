@@ -72,6 +72,36 @@ def chat(
     return choice.message.content or ""
 
 
+def chat_tools(
+    *,
+    stage: str,
+    model: str,
+    messages: list[dict],
+    tools: list[dict],
+    tracker: UsageTracker | None = None,
+    max_tokens: int = 8192,
+    temperature: float = 0.2,
+    thinking: bool | None = None,
+):
+    """One tool-calling turn: returns the assistant message (text and/or tool calls).
+
+    Used by agents that loop: call, execute the requested tools, append the
+    results as `tool` messages, call again.
+    """
+    start = time.perf_counter()
+    body = {"chat_template_kwargs": {"enable_thinking": thinking}} if thinking is not None else {}
+    resp = get_client().chat.completions.create(
+        model=model, messages=messages, tools=tools, tool_choice="auto",
+        max_tokens=max_tokens, temperature=temperature, extra_body=body,
+    )
+    if tracker is not None:
+        tracker.record(stage, model, resp.usage, time.perf_counter() - start)
+    choice = resp.choices[0]
+    if not choice.message.content and not choice.message.tool_calls and choice.finish_reason == "length":
+        raise TruncatedReply(f"{model} used all {max_tokens} tokens before answering")
+    return choice.message
+
+
 # Models that rejected structured output once; we stop asking them for it.
 _NO_STRUCTURED_OUTPUT: set[str] = set()
 
