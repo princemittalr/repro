@@ -3,6 +3,7 @@
 Usage:
     python -m scripts.eval_reproduce
     python -m scripts.eval_reproduce --samples coupon remove
+    python -m scripts.eval_reproduce --reuse-reports    # skip PERCEIVE, reuse the last reports
 
 For each sample it records whether a red test was produced, in how many
 attempts, and (the real proof) whether that same test PASSES once the bug is
@@ -23,6 +24,7 @@ from app.config import PROJECT_ROOT
 from app.perception import perceive
 from app.reproduce import reproduce
 from app.sandbox import run_test
+from app.schemas import ReproReport
 from app.target import IGNORED, running_app
 from app.usage import UsageTracker
 
@@ -44,6 +46,8 @@ def passes_on_fixed_app(code: str, artifacts: Path) -> tuple[bool, str]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--samples", nargs="+", default=["coupon", "remove", "quantity"])
+    parser.add_argument("--reuse-reports", action="store_true",
+                        help="reuse the perception reports saved by the previous run (tunes REPRODUCE alone)")
     args = parser.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
 
@@ -51,7 +55,11 @@ def main() -> None:
     for name in args.samples:
         tracker = UsageTracker()
         try:
-            report = perceive(SAMPLES / f"shoplite-{name}.mp4", tracker=tracker)
+            saved = OUT / f"{name}.json"
+            if args.reuse_reports and saved.exists():
+                report = ReproReport.model_validate(json.loads(saved.read_text(encoding="utf-8"))["report"])
+            else:
+                report = perceive(SAMPLES / f"shoplite-{name}.mp4", tracker=tracker)
             result = reproduce(report, SHOPLITE, tracker=tracker, artifacts_dir=OUT / name)
         except Exception as exc:  # noqa: BLE001 - keep evaluating the other samples
             print(f"{name:<9} ERROR {type(exc).__name__}: {str(exc)[:200]}")

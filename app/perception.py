@@ -231,6 +231,10 @@ def timeline(states: list[FrameState]) -> str:
         if changes:
             cause = prev.pointer if prev.pointer != "none" else s.pointer
             ring = ", click ring seen" if prev.click or s.click else ""
+            if out and out[-1].startswith(f"t={prev.t:.2f}s  pointer:"):
+                # The "before" frame is summed up in this change line; listing it on its own
+                # too reads like a second click on the same element.
+                out.pop()
             out += [f"t={s.t:.2f}s  CHANGE, triggered on: {cause} (pointer at t={prev.t:.2f}s{ring})", *changes]
         else:
             out.append(f"t={s.t:.2f}s  pointer: {s.pointer}{'  [click ring]' if s.click else ''}  (no change)")
