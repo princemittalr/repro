@@ -4,7 +4,7 @@
 
 Endpoints:
     GET  /                          the single-page UI (app/static)
-    GET  /api/health                which integrations are configured, model routing
+    GET  /api/health                which integrations are configured, model routing, live-run budget
     GET  /api/samples               sample recordings (and whether a recorded run exists)
     POST /api/runs                  start a run: upload a video or pick a sample; live or replay
     GET  /api/runs/{id}             run summary, events so far, final result
@@ -20,11 +20,12 @@ import tempfile
 from pathlib import Path
 from typing import Literal
 
-from fastapi import FastAPI, File, Form, Header, HTTPException, Query, UploadFile
+from fastapi import FastAPI, File, Form, Header, HTTPException, Query, Request, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.budget import budget
 from app.config import PROJECT_ROOT, settings
 from app.perception import PerceptionError, perceive
 from app.runs import RunStore, recording_for, save_upload, stream
@@ -46,6 +47,7 @@ SAMPLES = {
 }
 
 runs = RunStore()
+budget.enforced = True  # the public web server spends real credit: keep it inside the demo budget
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
@@ -70,7 +72,14 @@ def health() -> dict:
         "demo_repo": settings.github_demo_repo or None,
         "models": settings.models.as_dict(),
         "prices_known": bool(PRICES_PER_M),
+        "budget": budget.status(),
     }
+
+
+def _visitor(request: Request) -> str:
+    """Best-effort visitor id: the client IP, as seen through the host's proxy."""
+    forwarded = request.headers.get("x-forwarded-for", "")
+    return forwarded.split(",")[0].strip() or (request.client.host if request.client else "unknown")
 
 
 @app.get("/api/samples")
@@ -89,6 +98,7 @@ def sample_video(name: str) -> FileResponse:
 
 @app.post("/api/runs")
 async def start_run(
+    request: Request,
     sample: str | None = Form(None, description="Name of a sample recording"),
     video: UploadFile | None = File(None, description="Screen recording of the bug"),
     mode: Literal["live", "replay"] = Form("live"),
@@ -116,7 +126,10 @@ async def start_run(
 
     if not _is_set(settings.nebius_api_key):
         raise HTTPException(503, "NEBIUS_API_KEY is not configured, so live runs are unavailable.")
-    return runs.start_live(path, name, open_pr=open_pr and _is_set(settings.github_token)).summary()
+    allowed, pr_allowed, reason = budget.admit(_visitor(request), open_pr and _is_set(settings.github_token))
+    if not allowed:
+        raise HTTPException(429, reason)
+    return runs.start_live(path, name, open_pr=pr_allowed, on_finish=budget.release).summary()
 
 
 def _run_or_404(run_id: str):

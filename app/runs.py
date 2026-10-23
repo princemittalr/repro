@@ -21,7 +21,7 @@ import traceback
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import AsyncIterator, Literal
+from typing import AsyncIterator, Callable, Literal
 
 from app.config import PROJECT_ROOT
 from app.events import EventBus, PipelineEvent
@@ -65,9 +65,10 @@ class RunStore:
             self._runs[run.id] = run
         return run
 
-    def start_live(self, video: Path, video_name: str, open_pr: bool) -> Run:
+    def start_live(self, video: Path, video_name: str, open_pr: bool,
+                   on_finish: Callable[[], None] | None = None) -> Run:
         run = self._new(video, video_name, "live", open_pr)
-        threading.Thread(target=self._live, args=(run,), daemon=True, name=f"run-{run.id}").start()
+        threading.Thread(target=self._live, args=(run, on_finish), daemon=True, name=f"run-{run.id}").start()
         return run
 
     def start_replay(self, recording: Path, video: Path, video_name: str) -> Run:
@@ -75,7 +76,7 @@ class RunStore:
         threading.Thread(target=self._replay, args=(run, recording), daemon=True, name=f"replay-{run.id}").start()
         return run
 
-    def _live(self, run: Run) -> None:
+    def _live(self, run: Run, on_finish: Callable[[], None] | None = None) -> None:
         # Imported here so the web server starts even if an optional pipeline dependency is missing.
         from app.pipeline import run_pipeline
 
@@ -93,6 +94,8 @@ class RunStore:
             bus.emit("pipeline", "failed", friendly_error(exc))
         finally:
             run.finished = True
+            if on_finish is not None:
+                on_finish()
 
     def _replay(self, run: Run, recording: Path) -> None:
         saved = json.loads(recording.read_text(encoding="utf-8"))
