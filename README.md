@@ -109,10 +109,22 @@ as a reasonable alternative rather than forced to match.
 
 **Full pipeline** (`python -m scripts.eval_pipeline`): checks that the agent's fix behaves like the
 reference fix on the same cart scenario, that the existing suite still passes, and that a PR opens.
-Model-driven results for the coupon and remove bugs are added here after the end-to-end run. The
-orchestration, the fix loop (with a scripted stand-in for the model: real edits, real test runs,
-escalation after two red runs, refused edits to existing tests), VERIFY and the PR text are covered
-offline by `tests/`.
+Run with `--reuse-reports`, so perception (about 21k to 26k tokens per video, above) is not counted.
+
+| Bug | Red test | Fixed | VERIFY green | Behaves like reference | Escalated | Tokens (triage to PR) | Result |
+|-----|----------|-------|--------------|------------------------|-----------|-----------------------|--------|
+| Coupon stacks | yes | yes | yes | yes | no | 65k | [shoplite#3](https://github.com/princemittalr/shoplite/pull/3) |
+| Remove keeps the price | yes | yes | yes | yes | no | 56k | run without a PR |
+
+The first coupon run failed and cost 196k tokens: `read_file` printed `  57    const code`, and
+both Super and Ultra read the line-number padding as indentation, so all 20 of their edits missed
+by two spaces. `read_file` now separates the number with a tab, and `edit_file` accepts an
+`old_text` that differs only in indentation and re-indents the replacement to match the file.
+The whole session (key check, three pipeline runs) used about 317k tokens.
+
+The orchestration, the fix loop (with a scripted stand-in for the model: real edits, real test
+runs, escalation after two red runs, refused edits to existing tests), VERIFY and the PR text are
+covered offline by `tests/`.
 
 ## Quick start
 

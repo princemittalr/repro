@@ -130,6 +130,43 @@ TOOLS = [
 ]
 
 
+def _indent(line: str) -> str:
+    return line[:len(line) - len(line.lstrip())]
+
+
+def _reindent_edit(text: str, old_text: str, new_text: str) -> str | None:
+    """Apply an edit whose old_text only differs from the file in indentation.
+
+    Models often get the leading whitespace of copied code wrong. If old_text
+    matches exactly one block of lines once leading whitespace is ignored, the
+    edit is applied there. Each indentation the model used in old_text is
+    mapped to the file's real indentation on the same line, and new_text is
+    re-indented with that mapping. Otherwise returns None.
+    """
+    old_lines = old_text.strip("\n").split("\n")
+    lines = text.split("\n")
+    key = [line.strip() for line in old_lines]
+    if not any(key):
+        return None
+    hits = [i for i in range(len(lines) - len(key) + 1)
+            if [line.strip() for line in lines[i:i + len(key)]] == key]
+    if len(hits) != 1:
+        return None
+    start = hits[0]
+    mapping = {_indent(o): _indent(f) for o, f in zip(old_lines, lines[start:start + len(key)]) if o.strip()}
+
+    def shift(line: str) -> str:
+        if not line.strip():
+            return line
+        indent = _indent(line)
+        # Deepest known indentation this line starts with; any extra whitespace is kept on top of it.
+        known = max((k for k in mapping if indent.startswith(k)), key=len, default=None)
+        return line if known is None else mapping[known] + line[len(known):]
+
+    replacement = [shift(line) for line in new_text.strip("\n").split("\n")]
+    return "\n".join(lines[:start] + replacement + lines[start + len(key):])
+
+
 class ToolError(ValueError):
     """A tool call the agent should correct (bad path, text not found...)."""
 
@@ -169,7 +206,8 @@ class Workspace:
         lines = full.read_text(encoding="utf-8", errors="ignore").splitlines()
         start = max(1, start_line or 1)
         end = min(len(lines), end_line or len(lines))
-        return "\n".join(f"{n:>4}  {lines[n - 1]}" for n in range(start, end + 1))
+        # A tab after the number (like `cat -n`): with spaces, models misread the code's own indentation.
+        return "\n".join(f"{n:>4}\t{lines[n - 1]}" for n in range(start, end + 1))
 
     def search_code(self, pattern: str) -> str:
         try:
@@ -192,6 +230,11 @@ class Workspace:
             raise ToolError(f"{path} does not exist (use write_file to create new files)")
         text = full.read_text(encoding="utf-8")
         count = text.count(old_text)
+        if count == 0:
+            reindented = _reindent_edit(text, old_text, new_text)
+            if reindented is not None:
+                full.write_text(reindented, encoding="utf-8")
+                return f"Edited {rel} (old_text matched after fixing its indentation)."
         if count != 1:
             raise ToolError(f"old_text occurs {count} times in {path}; it must occur exactly once. "
                             "Copy it exactly from read_file output, without the line numbers.")
