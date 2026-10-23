@@ -1,0 +1,22 @@
+# Keeps the free Render instance awake during the day so visitors don't wait for a cold start.
+# Free web services sleep after 15 minutes without traffic. A ping every 10 minutes uses
+# about 400 of the 750 free instance hours a month (13 hours a day); widen the window only if you
+# have hours to spare. Set the repository variable REPRO_URL to override the default URL.
+name: keep-warm
+
+on:
+  schedule:
+    - cron: "*/10 2-14 * * *"   # 02:00-14:59 UTC = 07:30-20:29 IST
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ping /api/health
+        env:
+          URL: ${{ vars.REPRO_URL || 'https://repro-yrgp.onrender.com' }}
+        run: curl -fsS --retry 3 --retry-delay 20 --max-time 90 "$URL/api/health" -o /dev/null -w "%{http_code} in %{time_total}s\n"

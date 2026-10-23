@@ -70,13 +70,12 @@ function route() {
 
 function renderHealth() {
   const b = health.budget || {};
-  const integration = (ok, label) => `<span class="chip hidden lg:inline-flex ${ok ? "chip-ok" : "chip-off"}" title="${label} ${ok ? "configured" : "not configured"}"><span class="h-1.5 w-1.5 rounded-full ${ok ? "bg-emerald-400" : "bg-slate-600"}"></span>${label}</span>`;
   const live = health.nebius_configured && b.live_enabled !== false && b.live_runs_left_today !== 0;
   const status = live
     ? `<span class="chip chip-ok" title="Live runs left today on this demo"><span class="pulse-dot"></span>${b.live_runs_left_today ?? ""} live runs left</span>`
     : `<span class="chip chip-amber" title="Replays of real recorded runs are always available">Replay mode</span>`;
-  $("health").innerHTML = integration(health.nebius_configured, "Nebius") + integration(health.tavily_configured, "Tavily")
-    + integration(health.github_configured, "GitHub") + status;
+  // One status chip only; the integrations are credited in the footer.
+  $("health").innerHTML = status;
   if (health.demo_repo) $("demo-repo").textContent = health.demo_repo;
   if (!health.github_configured) $("open-pr").disabled = true;
 }
@@ -100,25 +99,27 @@ function renderBudget() {
 
 function renderSamples(samples) {
   renderBudget();
-  $("samples").innerHTML = samples.map((s) => `
+  // One solid green button per screen: only the first replayable sample gets the primary style.
+  const firstReplay = samples.findIndex((s) => s.has_recording);
+  $("samples").innerHTML = samples.map((s, i) => `
     <div class="card lift flex flex-col overflow-hidden" data-card>
-      <div class="sample-media">
+      <div class="sample-media" ${s.has_recording ? `role="button" tabindex="0" aria-label="Play the ${esc(s.title)} recording"` : ""}>
         <img src="${esc(s.poster_url)}" alt="" width="960" height="540" loading="lazy">
         <video data-src="${esc(s.video_url)}" muted loop playsinline preload="none" aria-hidden="true"></video>
-        <span class="play-hint chip border-slate-700 bg-slate-950/80 text-slate-200">${s.has_recording ? `<span class="hover-only">Hover to preview</span><span class="touch-only">Replay available</span>` : "Live only"}</span>
+        <span class="play-hint chip border-line-strong bg-bg/80 text-ink">${s.has_recording ? `<span class="hover-only">▶ Hover to play</span><span class="touch-only">▶ Tap to play</span>` : "Live only"}</span>
       </div>
       <div class="flex flex-1 flex-col p-4">
-        <p class="font-medium text-white">${esc(s.title)}</p>
-        <p class="mt-1 flex-1 text-sm text-slate-400">${esc(s.description)}</p>
-        ${s.has_recording ? "" : `<p class="mt-2 text-xs text-slate-400">No recorded replay yet: this bug has more than one reasonable fix, so it is shown live only.</p>`}
+        <p class="font-medium text-ink">${esc(s.title)}</p>
+        <p class="mt-1 flex-1 text-sm text-ink-2">${esc(s.description)}</p>
+        ${s.has_recording ? "" : `<p class="mt-2 text-xs text-ink-2">No recorded replay yet: this bug has more than one reasonable fix, so it is shown live only.</p>`}
         <div class="mt-3 flex flex-wrap gap-2">
           ${s.has_recording
-            ? `<button class="btn btn-primary" data-sample="${esc(s.name)}" data-mode="replay" title="Replay a recorded real run (instant, no model calls)">Replay run</button>
+            ? `<button class="${i === firstReplay ? "btn btn-primary" : "btn-ghost"}" data-sample="${esc(s.name)}" data-mode="replay" title="Replay a recorded real run (instant, no model calls)">Replay run</button>
                <button class="btn-ghost" data-sample="${esc(s.name)}" data-mode="live" ${liveDisabled()}>Run live</button>`
-            : `<button class="btn btn-primary" data-sample="${esc(s.name)}" data-mode="live" ${liveDisabled()}>Run live</button>`}
+            : `<button class="btn-ghost" data-sample="${esc(s.name)}" data-mode="live" ${liveDisabled()}>Run live</button>`}
         </div>
       </div>
-    </div>`).join("") || `<p class="text-sm text-slate-400">No sample videos found in samples/.</p>`;
+    </div>`).join("") || `<p class="text-sm text-ink-2">No sample videos found in samples/.</p>`;
   $("samples").querySelectorAll("[data-card]").forEach(FX.hoverPlay);
   $("samples").querySelectorAll("button[data-sample]").forEach((b) =>
     b.addEventListener("click", () => startRun({ sample: b.dataset.sample, mode: b.dataset.mode })));
@@ -127,8 +128,8 @@ function renderSamples(samples) {
 function wireUpload() {
   const zone = $("dropzone");
   $("file").addEventListener("change", (e) => e.target.files[0] && startRun({ file: e.target.files[0] }));
-  ["dragenter", "dragover"].forEach((t) => zone.addEventListener(t, (e) => { e.preventDefault(); zone.classList.add("border-emerald-500"); }));
-  ["dragleave", "drop"].forEach((t) => zone.addEventListener(t, (e) => { e.preventDefault(); zone.classList.remove("border-emerald-500"); }));
+  ["dragenter", "dragover"].forEach((t) => zone.addEventListener(t, (e) => { e.preventDefault(); zone.classList.add("border-fix"); }));
+  ["dragleave", "drop"].forEach((t) => zone.addEventListener(t, (e) => { e.preventDefault(); zone.classList.remove("border-fix"); }));
   zone.addEventListener("drop", (e) => e.dataTransfer.files[0] && startRun({ file: e.dataTransfer.files[0] }));
 }
 
@@ -145,12 +146,25 @@ async function startRun({ sample, file, mode = "live" }) {
   openRun(run.id);
 }
 
+// Only the visible screen carries the page's single <h1>; the hidden one is demoted to a <p>.
+function setHeading(active) {
+  for (const [id, on] of [["start-title", active === "start"], ["run-title", active === "run"]]) {
+    const el = $(id), tag = on ? "H1" : "P";
+    if (el.tagName === tag) continue;
+    const swap = document.createElement(tag);
+    [...el.attributes].forEach((a) => swap.setAttribute(a.name, a.value));
+    swap.innerHTML = el.innerHTML;
+    el.replaceWith(swap);
+  }
+}
+
 function showStart() {
   if (source) source.close();
   clearInterval(openRun.clock);
   $("player").pause();
   $("start").classList.remove("hidden");
   $("run").classList.add("hidden");
+  setHeading("start");
   document.title = "Try Repro: turn a bug recording into a pull request";
 }
 
@@ -173,6 +187,7 @@ async function openRun(runId) {
             seen: {}, open: new Set(), expanded: new Set(), celebrated: false };
   $("start").classList.add("hidden");
   $("run").classList.remove("hidden");
+  setHeading("run");
   window.scrollTo({ top: 0 });
   $("run-title").textContent = "Analysing recording…";
   $("run-mode").textContent = run.mode === "replay" ? "Replay of a recorded run" : "Live run";
@@ -268,11 +283,11 @@ function celebrate() {
     `${fmtNum(state.events.at(-1)?.tokens)} tokens`,
   ];
   $("success").innerHTML = `
-    <div class="success-banner flex flex-wrap items-center gap-4 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/15 via-emerald-500/5 to-transparent p-4 sm:p-5">
-      <span id="success-icon" class="grid h-11 w-11 flex-none place-items-center rounded-full bg-emerald-500 text-slate-950">${ICONS.check}</span>
+    <div class="success-banner flex flex-wrap items-center gap-4 rounded-2xl border border-fix/30 bg-gradient-to-r from-fix/15 via-fix/5 to-transparent p-4 sm:p-5">
+      <span id="success-icon" class="grid h-11 w-11 flex-none place-items-center rounded-full bg-fix text-bg">${ICONS.check}</span>
       <div class="min-w-0 flex-1">
-        <p class="text-lg font-semibold tracking-tight text-white">Bug caught, fixed and verified</p>
-        <p class="text-sm text-slate-300">${facts.map(esc).join(" · ")}</p>
+        <p class="text-lg font-semibold tracking-tight text-ink">Bug caught, fixed and verified</p>
+        <p class="text-sm text-ink-2">${facts.map(esc).join(" · ")}</p>
       </div>
       ${pr.url ? `<a href="${esc(pr.url)}" target="_blank" rel="noopener" class="btn btn-primary">Open pull request #${esc(pr.number)}
         <svg viewBox="0 0 24 24" class="arrow h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>` : ""}
@@ -292,8 +307,8 @@ function renderReport(report) {
   $("confidence").textContent = `confidence ${(report.confidence * 100).toFixed(0)}%`;
   $("steps").innerHTML = report.steps.map((s) => `
     <li><button class="step" data-t="${s.timestamp_s}">
-      <span class="w-12 flex-none font-mono text-xs text-emerald-400">${fmtTime(s.timestamp_s)}</span>
-      <span class="text-sm"><span class="mr-1.5 rounded bg-slate-800 px-1.5 py-0.5 font-mono text-[11px] uppercase text-slate-400">${esc(s.action)}</span>${esc(s.target)}${s.value ? ` <code class="text-amber-300">"${esc(s.value)}"</code>` : ""}</span>
+      <span class="w-12 flex-none font-mono text-xs text-fix-fg">${fmtTime(s.timestamp_s)}</span>
+      <span class="text-sm"><span class="mr-1.5 rounded bg-surface-3 px-1.5 py-0.5 font-mono text-[11px] uppercase text-ink-2">${esc(s.action)}</span>${esc(s.target)}${s.value ? ` <code class="text-replay">"${esc(s.value)}"</code>` : ""}</span>
     </button></li>`).join("");
   $("steps").querySelectorAll(".step").forEach((b) => b.addEventListener("click", () => seek(Number(b.dataset.t))));
   $("report").classList.remove("hidden");
@@ -352,7 +367,7 @@ function renderTimeline() {
     const icon = { pending: `<span class="text-xs">${i + 1}</span>`, running: `<span class="spinner"></span>`, failed: "!", skipped: "–",
       caught: ICONS.bug, done: ICONS.check }[visual];
     const models = s.models.map((m) => modelChip(m, m === health.models?.escalate ? "chip-amber" : "")).join("");
-    const meta = s.done && s.done.tokens ? `<span class="font-mono text-xs text-slate-400">${fmtNum(s.done.tokens)} tok · ${s.done.latency_s.toFixed(0)}s</span>` : "";
+    const meta = s.done && s.done.tokens ? `<span class="font-mono text-xs text-ink-2">${fmtNum(s.done.tokens)} tok · ${s.done.latency_s.toFixed(0)}s</span>` : "";
     const message = s.last ? s.last.message : stage.hint;
     const long = message.length > 140;
     const expanded = state.expanded.has(stage.id);
@@ -362,15 +377,15 @@ function renderTimeline() {
         <span class="stage-dot" title="${caught ? "Bug caught: the new test fails on the buggy code, as it should" : esc(s.status)}">${icon}</span>
         <div class="min-w-0 flex-1 pb-1">
           <div class="flex flex-wrap items-center gap-2">
-            <span class="font-medium text-white">${stage.name}</span>
+            <span class="font-medium text-ink">${stage.name}</span>
             ${caught ? `<span class="chip chip-red">bug caught · red test</span>` : ""}
             ${stage.id === "verify" && s.status === "done" ? `<span class="chip chip-ok">green test</span>` : ""}
             ${s.escalated ? `<span class="chip chip-amber">escalated</span>` : ""}
             ${models}
             <span class="ml-auto">${meta}</span>
           </div>
-          <p class="mt-0.5 break-words text-sm ${s.status === "pending" ? "text-slate-500" : "text-slate-300"} ${long && !expanded ? "clamp-2" : ""}">${esc(message)}</p>
-          ${long ? `<button class="mt-0.5 text-xs text-emerald-400 hover:underline" data-expand="${stage.id}" aria-expanded="${expanded}">${expanded ? "Show less" : "Show more"}</button>` : ""}
+          <p class="mt-0.5 break-words text-sm ${s.status === "pending" ? "text-muted" : "text-ink-2"} ${long && !expanded ? "clamp-2" : ""}">${esc(message)}</p>
+          ${long ? `<button class="mt-0.5 text-xs text-fix-fg hover:underline" data-expand="${stage.id}" aria-expanded="${expanded}">${expanded ? "Show less" : "Show more"}</button>` : ""}
           ${stageDetails(stage.id, s)}
         </div>
       </li>`;
@@ -380,15 +395,15 @@ function renderTimeline() {
 // Collapsed by default: the headline result is in the stage message, the detail is one click away.
 function details(key, label, body) {
   return `<details class="mt-2" data-key="${key}" ${state.open.has(key) ? "open" : ""}>
-    <summary class="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-200">${ICONS.caret}${label}</summary>
+    <summary class="inline-flex items-center gap-1 text-xs text-ink-2 hover:text-ink">${ICONS.caret}${label}</summary>
     ${body}</details>`;
 }
 
 function stageDetails(id, s) {
   const p = (s.done && s.done.payload) || {};
   if (id === "triage" && p.files) {
-    return `<div class="mt-2 flex flex-wrap gap-1.5">${p.files.map((f) => `<code class="rounded bg-slate-800/80 px-1.5 py-0.5 text-xs text-sky-300">${esc(f.path)}</code>`).join("")}</div>`
-      + details("triage", "Why these files", `<ul class="mt-2 space-y-1 text-xs text-slate-400">${p.files.map((f) => `<li><code class="text-sky-300">${esc(f.path)}</code> · ${esc(f.reason)}</li>`).join("")}</ul>`);
+    return `<div class="mt-2 flex flex-wrap gap-1.5">${p.files.map((f) => `<code class="rounded bg-surface-3/80 px-1.5 py-0.5 text-xs text-ident">${esc(f.path)}</code>`).join("")}</div>`
+      + details("triage", "Why these files", `<ul class="mt-2 space-y-1 text-xs text-ink-2">${p.files.map((f) => `<li><code class="text-ident">${esc(f.path)}</code> · ${esc(f.reason)}</li>`).join("")}</ul>`);
   }
   if (id === "reproduce" && p.attempts) {
     const color = { red: "chip-red", green: "chip-amber", broken: "chip-off" };
@@ -396,23 +411,23 @@ function stageDetails(id, s) {
   }
   if (id === "research" && state.research.length) {
     return `<ul class="mt-2 space-y-2 text-xs">${state.research.map((r) => `
-      <li class="rounded-lg border border-slate-800 bg-slate-900/60 p-2.5">
-        <p class="font-medium text-slate-200">“${esc(r.query)}”</p>
-        ${r.answer ? `<p class="mt-1 text-slate-400">${esc(r.answer.slice(0, 260))}${r.answer.length > 260 ? "…" : ""}</p>` : ""}
-        <p class="mt-1 flex flex-wrap gap-x-3">${(r.sources || []).slice(0, 3).map((src) => `<a class="text-sky-400 hover:underline" href="${esc(src.url)}" target="_blank" rel="noopener">${esc(new URL(src.url).hostname)}</a>`).join("")}</p>
+      <li class="rounded-lg border border-line bg-surface-1/60 p-2.5">
+        <p class="font-medium text-ink">“${esc(r.query)}”</p>
+        ${r.answer ? `<p class="mt-1 text-ink-2">${esc(r.answer.slice(0, 260))}${r.answer.length > 260 ? "…" : ""}</p>` : ""}
+        <p class="mt-1 flex flex-wrap gap-x-3">${(r.sources || []).slice(0, 3).map((src) => `<a class="text-ident hover:underline" href="${esc(src.url)}" target="_blank" rel="noopener">${esc(new URL(src.url).hostname)}</a>`).join("")}</p>
       </li>`).join("")}</ul>`;
   }
   if (id === "fix" && p.root_cause) {
-    return `<div class="mt-2 rounded-lg border border-slate-800 bg-slate-900/60 p-2.5 text-xs text-slate-400"><p><span class="text-slate-200">Root cause:</span> ${esc(p.root_cause)}</p>
-      <p class="mt-1">Changed: ${(p.changed_files || []).map((f) => `<code class="text-sky-300">${esc(f)}</code>`).join(", ")}</p></div>`;
+    return `<div class="mt-2 rounded-lg border border-line bg-surface-1/60 p-2.5 text-xs text-ink-2"><p><span class="text-ink">Root cause:</span> ${esc(p.root_cause)}</p>
+      <p class="mt-1">Changed: ${(p.changed_files || []).map((f) => `<code class="text-ident">${esc(f)}</code>`).join(", ")}</p></div>`;
   }
   if (id === "verify" && p.summary) {
     const tests = /tests (\d+)[\s\S]*?pass (\d+)/.exec(p.summary);
-    return (tests ? `<p class="mt-1 text-xs text-emerald-300">${tests[2]}/${tests[1]} unit tests pass (existing suite plus any the agent added)</p>` : "")
-      + details("verify", "Test output", `<pre class="mt-2 max-h-56 overflow-auto overscroll-auto rounded-lg border border-slate-800 bg-slate-900/60 p-2.5 text-[11px] leading-relaxed text-slate-400">${esc(p.summary)}</pre>`);
+    return (tests ? `<p class="mt-1 text-xs text-fix-fg">${tests[2]}/${tests[1]} unit tests pass (existing suite plus any the agent added)</p>` : "")
+      + details("verify", tests ? `Show ${tests[2]} passing tests` : "Test output", `<pre class="mt-2 overflow-x-auto rounded-lg border border-line bg-surface-1/60 p-2.5 text-[11px] leading-relaxed text-ink-2">${esc(p.summary)}</pre>`);
   }
   if (id === "ship" && p.url) {
-    return `<a href="${esc(p.url)}" target="_blank" rel="noopener" class="btn btn-primary mt-2">Open pull request #${p.number}
+    return `<a href="${esc(p.url)}" target="_blank" rel="noopener" class="btn-ghost mt-2">Open pull request #${p.number}
       <svg viewBox="0 0 24 24" class="arrow h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>`;
   }
   return "";
@@ -432,14 +447,14 @@ function setCode(id, text, language) {
 function addAgentStep(event) {
   const p = event.payload || {};
   if (p.escalated) {
-    $("agent-log").insertAdjacentHTML("beforeend", `<li class="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-amber-200">${esc(event.message)}</li>`);
+    $("agent-log").insertAdjacentHTML("beforeend", `<li class="rounded-lg border border-replay/30 bg-replay/10 px-3 py-2 text-replay">${esc(event.message)}</li>`);
   } else if (p.tool) {
     const args = Object.entries(p.args || {}).map(([k, v]) => `${k}=${String(v).slice(0, 80)}`).join(", ");
     $("agent-log").insertAdjacentHTML("beforeend", `
-      <li class="flex gap-2"><span class="w-6 flex-none text-right font-mono text-xs text-slate-500">${p.n}</span>
-        <span class="min-w-0 flex-1"><code class="${p.ok ? "text-sky-300" : "text-rose-300"}">${esc(p.tool)}</code><span class="text-slate-500">(${esc(args)})</span>
+      <li class="flex gap-2"><span class="w-6 flex-none text-right font-mono text-xs text-muted">${p.n}</span>
+        <span class="min-w-0 flex-1"><code class="${p.ok ? "text-ident" : "text-bug-fg"}">${esc(p.tool)}</code><span class="text-muted">(${esc(args)})</span>
         <span class="ml-1">${modelChip(p.model, p.model === health.models?.escalate ? "chip-amber" : "")}</span>
-        <span class="mt-0.5 block truncate text-xs text-slate-400">${esc((p.result || "").split("\n")[0])}</span></span></li>`);
+        <span class="mt-0.5 block truncate text-xs text-ink-2">${esc((p.result || "").split("\n")[0])}</span></span></li>`);
   }
   $("artifacts").classList.remove("hidden");
 }
@@ -464,13 +479,13 @@ function renderUsage() {
     const models = stage.id === "research" ? ["Tavily search API"] : s.models.map(friendly);
     total += stage.id === "research" ? 0 : s.done.tokens;
     time += s.done.latency_s;
-    rows.push(`<tr><td class="py-1.5 pr-3 text-slate-300">${stage.name}</td><td class="py-1.5 pr-3 text-xs text-slate-400" title="${esc(s.models.join(", "))}">${esc(models.join(" → ") || "–")}</td>
+    rows.push(`<tr><td class="py-1.5 pr-3 text-ink-2">${stage.name}</td><td class="py-1.5 pr-3 text-xs text-ink-2" title="${esc(s.models.join(", "))}">${esc(models.join(" → ") || "–")}</td>
       <td class="py-1.5 pr-3 text-right font-mono text-xs">${stage.id === "research" ? `${state.research.length} search(es)` : fmtNum(s.done.tokens)}</td>
-      <td class="py-1.5 text-right font-mono text-xs text-slate-400">${s.done.latency_s.toFixed(0)}s</td></tr>`);
+      <td class="py-1.5 text-right font-mono text-xs text-ink-2">${s.done.latency_s.toFixed(0)}s</td></tr>`);
   }
   if (!rows.length) return;
-  rows.push(`<tr class="font-medium"><td class="pt-2 pr-3 text-slate-200">Total</td><td></td><td class="pt-2 pr-3 text-right font-mono text-xs text-slate-200">${fmtNum(total)}</td>
-    <td class="pt-2 text-right font-mono text-xs text-slate-200">${time.toFixed(0)}s</td></tr>`);
+  rows.push(`<tr class="font-medium"><td class="pt-2 pr-3 text-ink">Total</td><td></td><td class="pt-2 pr-3 text-right font-mono text-xs text-ink">${fmtNum(total)}</td>
+    <td class="pt-2 text-right font-mono text-xs text-ink">${time.toFixed(0)}s</td></tr>`);
   $("usage").classList.remove("hidden");
   $("usage-rows").innerHTML = rows.join("");
   $("usage-total").textContent = `${fmtNum(total)} tokens`;

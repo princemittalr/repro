@@ -27,3 +27,4 @@ Thumbs.db
 
 # Local tooling
 .claude/
+dist/

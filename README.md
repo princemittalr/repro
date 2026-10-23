@@ -183,7 +183,24 @@ npx -y tailwindcss@3.4.17 -c tailwind.config.js -i app/static/css/site.src.css -
 ```
 
 Every number and quote on the landing page comes from the recorded runs in `demo/` and the evals
-above; `tests/test_web.py` checks them against the recordings.
+above; `tests/test_web.py` checks them against the recordings. Colours are semantic tokens
+(`fix`, `bug`, `replay`, `ink`, `surface-1`...) defined once in `tailwind.config.js` and
+`site.src.css`; raw palette classes like `text-emerald-400` don't compile.
+
+### Fast first load (no cold start)
+
+A free Render instance sleeps after 15 minutes idle and takes 30 to 60 seconds to wake. Two
+optional fixes, which work together:
+
+1. **Serve the landing page from a CDN.** `python -m scripts.build_static` writes a static copy of
+   the landing page, its assets and the sample videos to `dist/site`. Its "try it" links point at
+   the API (`REPRO_API_ORIGIN`, default `https://repro-yrgp.onrender.com`) and the page pings
+   `/api/health` on load, so the server wakes while the visitor reads. Deploy `dist/site` to
+   Netlify, Cloudflare Pages or GitHub Pages; set `SITE_URL` to the new address for the canonical
+   and Open Graph links. The API allows cross-origin `GET` only.
+2. **Keep the server warm.** `.github/workflows/keep-warm.yml` pings `/api/health` every 10
+   minutes from 07:30 to 20:30 IST (about 400 of the 750 free instance hours a month). Set the
+   repository variable `REPRO_URL` if the service moves.
 
 ## Project layout
 
@@ -196,6 +213,7 @@ above; `tests/test_web.py` checks them against the recordings.
 | `app/ship.py` | SHIP: branch, commit and pull request via the GitHub API |
 | `app/pipeline.py`, `app/events.py` | Stage orchestration and SSE-ready events |
 | `app/main.py`, `app/runs.py`, `app/showcase.py`, `app/static/` | Web UI and API: landing page at `/`, the tool at `/app`, real recent runs at `/api/recent` |
+| `scripts/build_static.py` | Static export of the landing page for a CDN host |
 | `shoplite/` | The demo app with three deliberate bugs ([its own repo](https://github.com/princemittalr/shoplite)) |
 | `samples/` | Sample recordings and ground truth for the evals |
 | `demo/` | Recorded real runs for the UI's instant Replay |

@@ -60,16 +60,29 @@ window.FX = (() => {
   }
 
   // Hover-play for sample cards: a muted loop of the bug while the pointer is over the card.
+  // On touch screens and from the keyboard, tapping (or Enter/Space on) the media toggles playback.
   function hoverPlay(card) {
     const media = card.querySelector(".sample-media");
     const video = media && media.querySelector("video");
-    if (!video || !window.matchMedia("(hover: hover)").matches || reduced()) return;
-    card.addEventListener("mouseenter", () => {
+    if (!video || reduced()) return;
+    const play = () => {
       if (!video.src) video.src = video.dataset.src;
       video.currentTime = Number(video.dataset.start || 0);
       video.play().then(() => media.classList.add("playing")).catch(() => {});
-    });
-    card.addEventListener("mouseleave", () => { video.pause(); media.classList.remove("playing"); });
+    };
+    const stop = () => { video.pause(); media.classList.remove("playing"); };
+    const toggle = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (media.classList.contains("playing")) stop(); else play();
+    };
+    if (window.matchMedia("(hover: hover)").matches) {
+      card.addEventListener("mouseenter", play);
+      card.addEventListener("mouseleave", stop);
+    } else {
+      media.addEventListener("click", toggle);
+    }
+    media.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") toggle(e); });
   }
 
   return { reduced, burst, burstFrom, countUp, hoverPlay };

@@ -79,12 +79,15 @@
   const rotator = $("#rotator"), fixWord = $("#fix-word"), title = $(".hero-title");
   if (!reduced) {
     const words = ["bug", "glitch", "regression", "crash"];
-    rotator.innerHTML = words.map((w, i) => `<span class="${i ? "in-down" : ""}">${w}</span>`).join("");
+    rotator.innerHTML = words.map((w, i) => `<span class="${i ? "in-down" : ""}">${w}<i>.</i></span>`).join("");
     const spans = $$("span", rotator);
-    const fit = (i) => { rotator.style.width = `${spans[i].offsetWidth}px`; };
-    document.fonts && document.fonts.ready.then(() => fit(0));
-    fit(0);
+    // Measure each word's own width (spans stretch in the grid, so use a range over the text).
+    const widthOf = (el) => { const r = document.createRange(); r.selectNodeContents(el); return Math.ceil(r.getBoundingClientRect().width); };
+    const fit = (i) => { rotator.style.width = `${widthOf(spans[i])}px`; };
     let current = 0, paused = false;
+    document.fonts && document.fonts.ready.then(() => fit(current));
+    window.addEventListener("resize", () => fit(current));
+    fit(0);
     title.addEventListener("mouseenter", () => { paused = true; });
     title.addEventListener("mouseleave", () => { paused = false; });
     watch(title);
@@ -151,13 +154,17 @@
   }
 
   let runs = [];
-  fetch("/api/recent").then((r) => (r.ok ? r.json() : [])).then((data) => {
+  // On the static build (scripts/build_static.py) the API lives on another origin. Asking for
+  // /api/health first also wakes the free Render instance while the visitor reads the hero.
+  const API = window.REPRO_API || "";
+  if (API) fetch(`${API}/api/health`).catch(() => {});
+  fetch(`${API}/api/recent`).then((r) => (r.ok ? r.json() : [])).then((data) => {
     runs = data;
     const live = data.filter((r) => r.source === "live").slice(0, 5);
     live.reverse().forEach((r) => {
       const { outcome, label } = runLine(r);
-      ticker.insertAdjacentHTML("afterbegin", `<li class="flex flex-none items-center gap-2"><span class="${r.success ? "text-emerald-400" : "text-rose-400"}">${r.success ? "✓" : "✕"}</span>${esc(r.title)}
-        <span class="text-slate-500">·</span> ${esc(outcome)} <span class="text-slate-500">·</span> ${fmtClock(r.duration_s)} <span class="chip chip-ok">${esc(label)}</span></li>`);
+      ticker.insertAdjacentHTML("afterbegin", `<li class="flex flex-none items-center gap-2"><span class="${r.success ? "text-fix-fg" : "text-bug-fg"}">${r.success ? "✓" : "✕"}</span>${esc(r.title)}
+        <span class="text-muted">·</span> ${esc(outcome)} <span class="text-muted">·</span> ${fmtClock(r.duration_s)} <span class="chip chip-ok">${esc(label)}</span></li>`);
     });
     if (!reduced) cloneTicker();
     schedulePings();
@@ -177,11 +184,11 @@
       const r = queue[shown++];
       const { outcome, label } = runLine(r);
       const el = document.createElement("div");
-      el.className = "ping-toast off pointer-events-auto mt-2 flex items-start gap-3 rounded-xl border border-slate-700/80 bg-slate-900/95 p-3 pr-2 text-sm shadow-2xl shadow-black/50 backdrop-blur";
+      el.className = "ping-toast off pointer-events-auto mt-2 flex items-start gap-3 rounded-xl border border-line-strong/80 bg-surface-1/95 p-3 pr-2 text-sm shadow-2xl shadow-black/50 backdrop-blur";
       el.innerHTML = `<span class="pulse-dot mt-1.5 flex-none"></span>
-        <div class="min-w-0 flex-1"><p class="font-medium text-white">${esc(r.title)}: ${esc(outcome)}</p>
-          <p class="text-xs text-slate-400">${fmtClock(r.duration_s)}${r.tests_total ? ` · ${r.tests_passed}/${r.tests_total} tests green` : ""} · ${esc(label)}</p></div>
-        <button class="rounded p-1 text-slate-500 hover:text-white" aria-label="Dismiss">✕</button>`;
+        <div class="min-w-0 flex-1"><p class="font-medium text-ink">${esc(r.title)}: ${esc(outcome)}</p>
+          <p class="text-xs text-ink-2">${fmtClock(r.duration_s)}${r.tests_total ? ` · ${r.tests_passed}/${r.tests_total} tests green` : ""} · ${esc(label)}</p></div>
+        <button class="rounded p-1 text-muted hover:text-ink" aria-label="Dismiss">✕</button>`;
       $("button", el).addEventListener("click", () => { box.dataset.closed = "1"; el.remove(); });
       box.appendChild(el);
       requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove("off")));
@@ -191,7 +198,12 @@
       el.remove();
       setTimeout(next, 3000 + Math.random() * 2000);
     };
-    setTimeout(next, 7000);
+    // Start only once the visitor has scrolled past the hero, so a toast never sits on the CTAs.
+    const hero = $("#top");
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => !e.isIntersecting)) { io.disconnect(); setTimeout(next, 2500); }
+    }, { threshold: 0 });
+    io.observe(hero);
   }
 
   // ---------------------------------------------------------------- before / after slider
@@ -253,8 +265,25 @@
       tile.style.setProperty("--my", `${e.clientY - r.top}px`);
     }));
 
-    const framesTile = $('[data-loop="frames"]'), frames = $$(".frames > span", framesTile);
-    loop(framesTile, 450, (n) => frames.forEach((f, i) => f.classList.toggle("hot", i === n % frames.length)));
+    // Real keyframes and steps from the recorded Coupon stacks run (demo/coupon_stacks.json).
+    const framesTile = $('[data-loop="frames"]'), frames = $$(".frames > figure", framesTile), caption = $("#frame-caption");
+    const arrow = '<span class="text-muted">→</span>';
+    const captions = [
+      ["2.06", `click Add to cart ${arrow} Classic Tee card`],
+      ["3.69", `click Add to cart ${arrow} Dev Mug card`],
+      ["6.19", `type Coupon code ${arrow} <span class="text-string">"SAVE10"</span>`],
+      ["7.44", `click Apply button ${arrow} Discount −$3.25`],
+      ["10.62", `type Coupon code ${arrow} <span class="text-string">"SAVE10"</span> again`],
+      ["11.94", `click Apply button ${arrow} Discount −$3.25 ${arrow} <span class="text-bug-fg">−$6.50 ✕</span>`],
+    ];
+    loop(framesTile, 1600, async (n) => {
+      const i = n % frames.length;
+      frames.forEach((f, j) => f.classList.toggle("hot", j === i));
+      caption.classList.add("swap");
+      await sleep(150);
+      caption.innerHTML = `<span class="text-ident">t=${captions[i][0]}s</span> ${captions[i][1]}`;
+      caption.classList.remove("swap");
+    });
 
     const routes = [
       ["Perceive", "Nemotron 3.5 Super VL", "reads video and keyframes"],
@@ -275,25 +304,20 @@
       swapEls.forEach((el) => el.classList.remove("swap"));
     });
 
-    // The Playwright test types itself out once, the first time the tile is on screen.
-    const code = $("#typing"), full = code.textContent;
-    code.textContent = "";
-    code.classList.add("typing-caret");
-    once($('[data-loop="typing"]'), async () => {
-      for (let i = 0; i <= full.length; i += 3) {
-        code.textContent = full.slice(0, i);
-        await sleep(12);
-      }
-      code.textContent = full;
+    // The Playwright test writes itself line by line, then runs red on the bug, once.
+    const typingTile = $('[data-loop="typing"]'), lines = $$(".typed-line", typingTile), failLine = $(".fail-line", typingTile);
+    typingTile.querySelector(".typing").classList.add("armed");
+    failLine.classList.add("armed");
+    once(typingTile, async () => {
+      for (const line of lines) { line.classList.add("on"); await sleep(420); }
+      await sleep(300);
+      failLine.classList.add("on");
     }, 0.4);
 
+    // The diff: the bug line glows red, then the guard slides in above it and the line goes quiet.
     const diffTile = $('[data-loop="diff"]');
     diffTile.classList.add("animating");
-    loop(diffTile, 1100, (n) => {
-      const phase = n % 5;  // 0 reset, 1 strike, 2 add, 3-4 hold
-      diffTile.classList.toggle("struck", phase >= 1);
-      diffTile.classList.toggle("shown", phase >= 2);
-    });
+    loop(diffTile, 1300, (n) => diffTile.classList.toggle("fixed", n % 5 >= 2));  // 0-1 bug, 2-4 fixed
 
     const toolsTile = $('[data-loop="tools"]'), tools = $$("#tools .chip");
     const order = [0, 4, 0, 2, 3, 5];  // read_file, web_search, read_file, edit_file, run_tests, finish
