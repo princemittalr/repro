@@ -45,10 +45,12 @@ class Run:
     events: list[dict] = field(default_factory=list)
     finished: bool = False
     result: dict | None = None
+    recorded_duration_s: float | None = None  # replays: how long the original live run took
 
     def summary(self) -> dict:
         return {"id": self.id, "video_name": self.video_name, "mode": self.mode, "open_pr": self.open_pr,
-                "created": self.created, "finished": self.finished, "events": len(self.events)}
+                "created": self.created, "finished": self.finished, "events": len(self.events),
+                "recorded_duration_s": self.recorded_duration_s}
 
 
 class RunStore:
@@ -72,8 +74,11 @@ class RunStore:
         return run
 
     def start_replay(self, recording: Path, video: Path, video_name: str) -> Run:
+        saved = json.loads(recording.read_text(encoding="utf-8"))
         run = self._new(video, video_name, "replay", open_pr=False)
-        threading.Thread(target=self._replay, args=(run, recording), daemon=True, name=f"replay-{run.id}").start()
+        if saved["events"]:
+            run.recorded_duration_s = round(saved["events"][-1]["ts"] - saved["events"][0]["ts"], 1)
+        threading.Thread(target=self._replay, args=(run, saved), daemon=True, name=f"replay-{run.id}").start()
         return run
 
     def _live(self, run: Run, on_finish: Callable[[], None] | None = None) -> None:
@@ -97,8 +102,7 @@ class RunStore:
             if on_finish is not None:
                 on_finish()
 
-    def _replay(self, run: Run, recording: Path) -> None:
-        saved = json.loads(recording.read_text(encoding="utf-8"))
+    def _replay(self, run: Run, saved: dict) -> None:
         previous_ts = None
         for seq, event in enumerate(saved["events"]):
             if previous_ts is not None:

@@ -9,8 +9,7 @@ request with the fix, the new regression test and the red/green evidence. No hum
 Built for the **Nebius x NVIDIA Global AI Hackathon** (Coding and Agentic Engineering track) on
 **NVIDIA Nemotron** models served by **Nebius Token Factory**, with live web research by **Tavily**.
 
-![Repro UI: video on the left, live agent timeline on the right](docs/screenshot.png)
-<!-- TODO: replace with a GIF of a live run (start screen shown for now). -->
+![Repro: a finished replay of the Coupon stacks run, from red test to PR #3](docs/screenshot.png)
 
 ## Why
 
@@ -174,6 +173,18 @@ python -m scripts.eval_pipeline
 python -m unittest discover tests                                     # offline unit tests
 ```
 
+### Web UI styles
+
+The CSS is built with Tailwind and committed (`app/static/css/site.css`), so the server needs no
+Node build step. After changing classes in `app/static/`, rebuild it:
+
+```bash
+npx -y tailwindcss@3.4.17 -c tailwind.config.js -i app/static/css/site.src.css -o app/static/css/site.css --minify
+```
+
+Every number and quote on the landing page comes from the recorded runs in `demo/` and the evals
+above; `tests/test_web.py` checks them against the recordings.
+
 ## Project layout
 
 | Path | What it is |
@@ -184,7 +195,7 @@ python -m unittest discover tests                                     # offline 
 | `app/fix.py`, `app/research.py`, `app/checks.py` | FIX agent, Tavily research, regression + suite checks |
 | `app/ship.py` | SHIP: branch, commit and pull request via the GitHub API |
 | `app/pipeline.py`, `app/events.py` | Stage orchestration and SSE-ready events |
-| `app/main.py`, `app/runs.py`, `app/static/` | Web UI and API |
+| `app/main.py`, `app/runs.py`, `app/showcase.py`, `app/static/` | Web UI and API: landing page at `/`, the tool at `/app`, real recent runs at `/api/recent` |
 | `shoplite/` | The demo app with three deliberate bugs ([its own repo](https://github.com/princemittalr/shoplite)) |
 | `samples/` | Sample recordings and ground truth for the evals |
 | `demo/` | Recorded real runs for the UI's instant Replay |

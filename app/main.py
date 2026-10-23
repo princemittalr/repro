@@ -3,7 +3,9 @@
     uvicorn app.main:app --reload        # then open http://localhost:8000
 
 Endpoints:
-    GET  /                          the single-page UI (app/static)
+    GET  /                          the landing page (app/static/landing.html)
+    GET  /app                       the tool: upload or pick a sample, watch the live run (app/static/app.html)
+    GET  /api/recent                real recent runs for the landing page (recorded demo runs + live runs)
     GET  /api/health                which integrations are configured, model routing, live-run budget
     GET  /api/samples               sample recordings (and whether a recorded run exists)
     POST /api/runs                  start a run: upload a video or pick a sample; live or replay
@@ -18,17 +20,19 @@ from __future__ import annotations
 import shutil
 import tempfile
 from pathlib import Path
+from urllib.parse import quote
 from typing import Literal
 
 from fastapi import FastAPI, File, Form, Header, HTTPException, Query, Request, UploadFile
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.budget import budget
 from app.config import PROJECT_ROOT, settings
 from app.perception import PerceptionError, perceive
 from app.runs import RunStore, recording_for, save_upload, stream
+from app.showcase import recent_runs
 from app.usage import PRICES_PER_M, UsageTracker
 from app.video import VideoError
 
@@ -56,9 +60,21 @@ def _is_set(value: str) -> bool:
     return bool(value) and "your" not in value
 
 
-@app.get("/", include_in_schema=False)
-def index() -> FileResponse:
-    return FileResponse(STATIC_DIR / "index.html")
+@app.get("/", include_in_schema=False, response_model=None)
+def index(run: str | None = None) -> FileResponse | RedirectResponse:
+    if run:  # run links shared before the tool moved to /app
+        return RedirectResponse(f"/app?run={quote(run)}", status_code=308)
+    return FileResponse(STATIC_DIR / "landing.html")
+
+
+@app.get("/app", include_in_schema=False)
+def tool() -> FileResponse:
+    return FileResponse(STATIC_DIR / "app.html")
+
+
+@app.get("/try", include_in_schema=False)
+def try_it() -> RedirectResponse:
+    return RedirectResponse("/app", status_code=308)
 
 
 @app.get("/api/health")
@@ -85,8 +101,16 @@ def _visitor(request: Request) -> str:
 @app.get("/api/samples")
 def samples() -> list[dict]:
     return [{"name": name, "title": title, "description": description,
-             "video_url": f"/media/samples/{name}.mp4", "has_recording": recording_for(name) is not None}
+             "video_url": f"/media/samples/{name}.mp4", "poster_url": f"/static/img/poster-{name}.jpg",
+             "has_recording": recording_for(name) is not None}
             for name, (title, description) in SAMPLES.items() if (SAMPLES_DIR / f"shoplite-{name}.mp4").exists()]
+
+
+@app.get("/api/recent")
+def recent() -> list[dict]:
+    """Real runs only: live runs this server finished, then the recorded demo runs. No text from
+    uploaded recordings is included (see app/showcase.py)."""
+    return recent_runs(SAMPLES)
 
 
 @app.get("/media/samples/{name}.mp4", include_in_schema=False)
