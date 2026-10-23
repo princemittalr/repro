@@ -49,7 +49,24 @@ function renderHealth() {
   if (!health.github_configured) { $("open-pr").disabled = true; }
 }
 
+// Live runs spend real Nebius credit, so the demo has a daily budget (see app/budget.py).
+function liveDisabled() {
+  if (!health.nebius_configured) return "disabled title='NEBIUS_API_KEY is not configured'";
+  const b = health.budget || {};
+  if (b.live_enabled === false || b.live_runs_left_today === 0) return "disabled title='Today\'s live-run budget is used up. Replay shows a real recorded run.'";
+  return "";
+}
+
+function renderBudget() {
+  const b = health.budget;
+  if (!b) return;
+  $("budget-note").textContent = !b.live_enabled
+    ? "Live runs are switched off on this demo. Replay shows a real recorded run, step by step."
+    : `Live runs call Nemotron on Nebius Token Factory: ${b.live_runs_left_today} left today (up to ${b.runs_per_visitor} per visitor). Replay is instant and free.`;
+}
+
 function renderSamples(samples) {
+  renderBudget();
   $("samples").innerHTML = samples.map((s) => `
     <div class="card flex flex-col overflow-hidden">
       <video src="${esc(s.video_url)}#t=4" class="aspect-video w-full bg-black object-cover" muted preload="metadata"></video>
@@ -57,8 +74,8 @@ function renderSamples(samples) {
         <p class="font-medium text-white">${esc(s.title)}</p>
         <p class="mt-1 flex-1 text-sm text-slate-400">${esc(s.description)}</p>
         <div class="mt-3 flex flex-wrap gap-2">
-          <button class="btn btn-primary" data-sample="${esc(s.name)}" data-mode="live" ${health.nebius_configured ? "" : "disabled title='NEBIUS_API_KEY is not configured'"}>Run live</button>
-          ${s.has_recording ? `<button class="btn-ghost" data-sample="${esc(s.name)}" data-mode="replay" title="Replay a recorded run (instant, no model calls)">Replay</button>` : ""}
+          ${s.has_recording ? `<button class="btn btn-primary" data-sample="${esc(s.name)}" data-mode="replay" title="Replay a recorded real run (instant, no model calls)">Replay run</button>` : ""}
+          <button class="${s.has_recording ? "btn-ghost" : "btn btn-primary"}" data-sample="${esc(s.name)}" data-mode="live" ${liveDisabled()}>Run live</button>
         </div>
       </div>
     </div>`).join("") || `<p class="text-sm text-slate-500">No sample videos found in samples/.</p>`;
