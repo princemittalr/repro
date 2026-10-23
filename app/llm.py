@@ -14,6 +14,7 @@ from functools import lru_cache
 
 from openai import BadRequestError, OpenAI
 
+from app.budget import BudgetExceeded, budget
 from app.config import settings
 from app.usage import UsageTracker
 
@@ -30,6 +31,34 @@ def get_client() -> OpenAI:
 
 class TruncatedReply(ValueError):
     """The model hit max_tokens before writing any answer."""
+
+
+def friendly_error(exc: Exception) -> str:
+    """A one-line explanation of a failure, for the UI and the CLI."""
+    status = getattr(exc, "status_code", None)
+    if isinstance(exc, BudgetExceeded):
+        return str(exc)
+    if status == 402:
+        return "Nebius Token Factory credits are exhausted (HTTP 402). Add credit to the account to run live."
+    if status == 401:
+        return "Nebius Token Factory rejected the API key (HTTP 401). Check NEBIUS_API_KEY in .env."
+    if status == 429:
+        return "Nebius Token Factory rate limit reached (HTTP 429). Wait a minute and try again."
+    return f"{type(exc).__name__}: {exc}"[:400]
+
+
+def _guard(tracker: UsageTracker | None) -> None:
+    """Refuse the call if it would exceed the demo's spending budget (web server only)."""
+    used = 0
+    if tracker is not None:
+        used = sum(c.prompt_tokens + c.completion_tokens for c in tracker.calls)
+    budget.check(used)
+
+
+def _record(tracker: UsageTracker | None, stage: str, model: str, usage, latency_s: float) -> None:
+    if tracker is not None:
+        tracker.record(stage, model, usage, latency_s)
+    budget.spend((getattr(usage, "prompt_tokens", 0) or 0) + (getattr(usage, "completion_tokens", 0) or 0))
 
 
 def chat(
@@ -50,6 +79,7 @@ def chat(
     models (faster and cheaper for plain transcription); None keeps the
     model's default.
     """
+    _guard(tracker)
     start = time.perf_counter()
     kwargs = {"response_format": response_format} if response_format else {}
     body = dict(extra_body or {})
@@ -63,13 +93,42 @@ def chat(
         extra_body=body,
         **kwargs,
     )
-    if tracker is not None:
-        tracker.record(stage, model, resp.usage, time.perf_counter() - start)
+    _record(tracker, stage, model, resp.usage, time.perf_counter() - start)
     choice = resp.choices[0]
     if not choice.message.content and choice.finish_reason == "length":
         # Reasoning models can spend the whole budget thinking and never answer.
         raise TruncatedReply(f"{model} used all {max_tokens} tokens before answering")
     return choice.message.content or ""
+
+
+def chat_tools(
+    *,
+    stage: str,
+    model: str,
+    messages: list[dict],
+    tools: list[dict],
+    tracker: UsageTracker | None = None,
+    max_tokens: int = 8192,
+    temperature: float = 0.2,
+    thinking: bool | None = None,
+):
+    """One tool-calling turn: returns the assistant message (text and/or tool calls).
+
+    Used by agents that loop: call, execute the requested tools, append the
+    results as `tool` messages, call again.
+    """
+    _guard(tracker)
+    start = time.perf_counter()
+    body = {"chat_template_kwargs": {"enable_thinking": thinking}} if thinking is not None else {}
+    resp = get_client().chat.completions.create(
+        model=model, messages=messages, tools=tools, tool_choice="auto",
+        max_tokens=max_tokens, temperature=temperature, extra_body=body,
+    )
+    _record(tracker, stage, model, resp.usage, time.perf_counter() - start)
+    choice = resp.choices[0]
+    if not choice.message.content and not choice.message.tool_calls and choice.finish_reason == "length":
+        raise TruncatedReply(f"{model} used all {max_tokens} tokens before answering")
+    return choice.message
 
 
 # Models that rejected structured output once; we stop asking them for it.

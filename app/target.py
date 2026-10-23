@@ -92,6 +92,8 @@ def running_app(source_dir: Path, workdir: Path | None = None) -> Iterator[tuple
 
 def _stop(process: subprocess.Popen) -> None:
     """Stop the server and any child it spawned (npm start runs node as a child)."""
+    if process.stdout:
+        process.stdout.close()
     if process.poll() is not None:
         return
     if os.name == "nt":  # Windows: kill the whole process tree
