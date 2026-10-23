@@ -59,6 +59,15 @@ class WorkspaceTest(unittest.TestCase):
         with self.assertRaises(ToolError):
             self.ws.edit_file("src/cart.js", "const", "let")
 
+    def test_edit_with_wrong_indentation_is_reindented(self):
+        # A real failure: the model copied a 2-space function body with 4 spaces, every time.
+        (self.root / "src" / "fn.js").write_text("function f(x) {\n  if (x) {\n    return 1;\n  }\n  return 0;\n}\n",
+                                                 encoding="utf-8")
+        self.ws.edit_file("src/fn.js", "function f(x) {\n    if (x) {\n      return 1;\n    }",
+                          "function f(x) {\n    if (x) {\n      return 2;\n    }\n    if (!x) return 3;")
+        self.assertEqual((self.root / "src" / "fn.js").read_text(encoding="utf-8"),
+                         "function f(x) {\n  if (x) {\n    return 2;\n  }\n  if (!x) return 3;\n  return 0;\n}\n")
+
     def test_existing_tests_are_protected_but_new_ones_allowed(self):
         with self.assertRaises(ToolError):
             self.ws.edit_file("test/cart.test.js", "existing", "weakened")

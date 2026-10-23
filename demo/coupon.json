@@ -1,0 +1,935 @@
+{
+  "result": {
+    "run_id": "fd427d81bf3c",
+    "report": {
+      "title": "Coupon code applies discount multiple times when applied repeatedly",
+      "app_url": "https://shoplite-demo.com",
+      "page": "Product Listing / Cart",
+      "steps": [
+        {
+          "index": 1,
+          "action": "click",
+          "target": "Add to cart (Classic Tee card)",
+          "value": null,
+          "timestamp_s": 2.06,
+          "observation": null
+        },
+        {
+          "index": 2,
+          "action": "click",
+          "target": "Add to cart (Dev Mug card)",
+          "value": null,
+          "timestamp_s": 3.69,
+          "observation": null
+        },
+        {
+          "index": 3,
+          "action": "type",
+          "target": "Coupon code input field",
+          "value": "SAVE10",
+          "timestamp_s": 6.19,
+          "observation": null
+        },
+        {
+          "index": 4,
+          "action": "click",
+          "target": "Apply button",
+          "value": null,
+          "timestamp_s": 7.44,
+          "observation": null
+        },
+        {
+          "index": 5,
+          "action": "type",
+          "target": "Coupon code input field",
+          "value": "SAVE10",
+          "timestamp_s": 10.62,
+          "observation": null
+        },
+        {
+          "index": 6,
+          "action": "click",
+          "target": "Apply button",
+          "value": null,
+          "timestamp_s": 11.94,
+          "observation": null
+        }
+      ],
+      "expected_behavior": "Applying the same coupon code (SAVE10) a second time should not stack the discount. The discount should remain at -$3.25 (10% of $32.49 subtotal) and the total should remain $34.23, or an error message should indicate the coupon is already applied.",
+      "actual_behavior": "Applying the coupon SAVE10 a second time stacked the discount. The discount changed from -$3.25 to -$6.50, and the total dropped from $34.23 to $30.98, effectively giving 20% off instead of 10%.",
+      "error_text": [
+        "Discount stacked incorrectly: After first apply, Discount was -$3.25 and Total was $34.23. After second apply of the same code SAVE10, Discount became -$6.50 and Total became $30.98."
+      ],
+      "key_moments": [],
+      "confidence": 0.98
+    },
+    "triage": {
+      "files": [
+        {
+          "path": "public/cart.js",
+          "reason": "The bug report explicitly describes coupon stacking behavior. This file defines the `applyCoupon` function which is the most likely location for the logic error causing the discount to stack on repeated application."
+        },
+        {
+          "path": "public/app.js",
+          "reason": "This file handles the UI wiring and event listeners (renderProducts, renderCart, showMessage). It likely calls the `applyCoupon` function from cart.js when the Apply button is clicked, making it the entry point for the bug flow."
+        },
+        {
+          "path": "public/index.html",
+          "reason": "The bug report specifies the 'Product Listing / Cart' page. The HTML structure defines the coupon input field and Apply button targets mentioned in the reproduction steps."
+        }
+      ],
+      "hypothesis": "The `applyCoupon` function in cart.js does not check if a coupon code is already applied to the cart before calculating and applying the discount. When the user types 'SAVE10' and clicks Apply a second time, the function likely adds a second discount instance instead of detecting the duplicate and rejecting the action or updating the existing one."
+    },
+    "repro": {
+      "reproduced": true,
+      "test_code": "def test_repro(page, base_url):\n    page.goto(base_url)\n    # Step 1 (t=2.06s): click Add to cart (Classic Tee card)\n    page.get_by_test_id(\"add-tee\").click()\n    # Step 2 (t=3.69s): click Add to cart (Dev Mug card)\n    page.get_by_test_id(\"add-mug\").click()\n    # Step 3 (t=6.19s): type coupon code SAVE10\n    page.get_by_test_id(\"coupon-input\").fill(\"SAVE10\")\n    # Step 4 (t=7.44s): click Apply button\n    page.get_by_test_id(\"apply-coupon\").click()\n    # Capture discount and total after first apply\n    discount_after_first = page.get_by_test_id(\"discount\").inner_text()\n    total_after_first = page.get_by_test_id(\"total\").inner_text()\n    # Step 5 (t=10.62s): type coupon code SAVE10 again\n    page.get_by_test_id(\"coupon-input\").fill(\"SAVE10\")\n    # Step 6 (t=11.94s): click Apply button again\n    page.get_by_test_id(\"apply-coupon\").click()\n    # Assert discount and total unchanged (prevents stacking)\n    expect(page.get_by_test_id(\"discount\")).to_have_text(discount_after_first)\n    expect(page.get_by_test_id(\"total\")).to_have_text(total_after_first)\n",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "code": "def test_repro(page, base_url):\n    page.goto(base_url)\n    # Step 1 (t=2.06s): click Add to cart (Classic Tee card)\n    page.get_by_test_id(\"add-tee\").click()\n    # Step 2 (t=3.69s): click Add to cart (Dev Mug card)\n    page.get_by_test_id(\"add-mug\").click()\n    # Step 3 (t=6.19s): type coupon code SAVE10\n    page.get_by_test_id(\"coupon-input\").fill(\"SAVE10\")\n    # Step 4 (t=7.44s): click Apply button\n    page.get_by_test_id(\"apply-coupon\").click()\n    # Capture discount and total after first apply\n    discount_after_first = page.get_by_test_id(\"discount\").inner_text()\n    total_after_first = page.get_by_test_id(\"total\").inner_text()\n    # Step 5 (t=10.62s): type coupon code SAVE10 again\n    page.get_by_test_id(\"coupon-input\").fill(\"SAVE10\")\n    # Step 6 (t=11.94s): click Apply button again\n    page.get_by_test_id(\"apply-coupon\").click()\n    # Assert discount and total unchanged (prevents stacking)\n    expect(page.get_by_test_id(\"discount\")).to_have_text(discount_after_first)\n    expect(page.get_by_test_id(\"total\")).to_have_text(total_after_first)\n",
+          "run": {
+            "outcome": "failed",
+            "message": "AssertionError: Locator expected to have text '-$3.25'\nActual value: -$6.50 \nCall log:\n  - Expect \"to_have_text\" get_by_test_id(\"discount\") with timeout 3000ms\n  - waiting for get_by_test_id(\"discount\")\n    10 \u00d7 locator resolved to <dd id=\"discount\" data-testid=\"discount\">-$6.50</dd>\n       - unexpected value \"-$6.50\"\n\nAria snapshot:\n- definition: \"-$6.50\" (test line 19: expect(page.get_by_test_id(\"discount\")).to_have_text(discount_after_first))",
+            "duration_s": 7.28,
+            "screenshot": "C:\\Users\\princ\\AppData\\Local\\Temp\\tmp4nqz9lpn\\attempt-1\\failure.png",
+            "page_snapshot": "- banner: \ud83d\udecd\ufe0f ShopLite Demo store\n- main:\n  - region \"Products\":\n    - heading \"Products\" [level=1]\n    - article:\n      - strong: Classic Tee\n      - text: $19.99\n      - button \"Add to cart\"\n    - article:\n      - strong: Dev Mug\n      - text: $12.50\n      - button \"Add to cart\"\n    - article:\n      - strong: Logo Cap\n      - text: $24.00\n      - button \"Add to cart\"\n    - article:\n      - strong: Sticker Pack\n      - text: $4.99\n      - button \"Add to cart\"\n  - complementary \"Your cart\":\n    - heading \"Your cart\" [level=2]\n    - list:\n      - listitem:\n        - strong: Classic Tee\n        - button \"Remove Classic Tee\": Remove\n        - button \"Decrease quantity\": \u2212\n        - text: \"1\"\n        - button \"Increase quantity\": +\n        - text: $19.99\n      - listitem:\n        - strong: Dev Mug\n        - button \"Remove Dev Mug\": Remove\n        - button \"Decrease quantity\": \u2212\n        - text: \"1\"\n        - button \"Increase quantity\": +\n        - text: $12.50\n    - textbox \"Coupon code\"\n    - button \"Apply\"\n    - status: \"Coupon SAVE10 applied: 10% off.\"\n    - list:\n      - listitem: SAVE10\n      - listitem: SAVE10\n    - term: Subtotal\n    - definition: $32.49\n    - term: Discount\n    - definition: \"-$6.50\"\n    - term: Shipping\n    - definition: $4.99\n    - term: Total\n    - definition: $30.98\n    - button \"Checkout\"\n\nInteractive elements now:\n- <div> testid='product-list' id='products' text='\ud83d\udc55\\nClassic Tee\\n$19.99\\nAdd to cart\\n\u2615\\nDev Mug\\n$12.50\\nAdd to ca'\n- <article> testid='product-tee' id=None text='\ud83d\udc55\\nClassic Tee\\n$19.99\\nAdd to cart'\n- <button> testid='add-tee' id=None text='Add to cart'\n- <article> testid='product-mug' id=None text='\u2615\\nDev Mug\\n$12.50\\nAdd to cart'\n- <button> testid='add-mug' id=None text='Add to cart'\n- <article> testid='product-cap' id=None text='\ud83e\udde2\\nLogo Cap\\n$24.00\\nAdd to cart'\n- <button> testid='add-cap' id=None text='Add to cart'\n- <article> testid='product-stickers' id=None text='\u2728\\nSticker Pack\\n$4.99\\nAdd to cart'\n- <button> testid='add-stickers' id=None text='Add to cart'\n- <ul> testid='cart-items' id='cart-items' text='Classic Tee\\nRemove\\n\u2212\\n1\\n+\\n$19.99\\nDev Mug\\nRemove\\n\u2212\\n1\\n+\\n$12.50'\n- <li> testid='cart-line-tee' id=None text='Classic Tee\\nRemove\\n\u2212\\n1\\n+\\n$19.99'\n- <button> testid='remove-tee' id=None text='Remove' aria-label='Remove Classic Tee'\n- <button> testid='dec-tee' id=None text='\u2212' aria-label='Decrease quantity'\n- <span> testid='qty-tee' id=None text='1'\n- <button> testid='inc-tee' id=None text='+' aria-label='Increase quantity'\n- <li> testid='cart-line-mug' id=None text='Dev Mug\\nRemove\\n\u2212\\n1\\n+\\n$12.50'\n- <button> testid='remove-mug' id=None text='Remove' aria-label='Remove Dev Mug'\n- <button> testid='dec-mug' id=None text='\u2212' aria-label='Decrease quantity'\n- <span> testid='qty-mug' id=None text='1'\n- <button> testid='inc-mug' id=None text='+' aria-label='Increase quantity'\n- <form> testid='coupon-form' id='coupon-form' text='Apply'\n- <input> testid='coupon-input' id='coupon-input' text='Coupon code'\n- <button> testid='apply-coupon' id=None text='Apply'\n- <p> testid='coupon-message' id='coupon-message' text='Coupon SAVE10 applied: 10% off.'\n- <ul> testid='applied-coupons' id='applied-coupons' text='SAVE10\\nSAVE10'\n- <dd> testid='subtotal' id='subtotal' text='$32.49'\n- <dd> testid='discount' id='discount' text='-$6.50'\n- <dd> testid='shipping' id='shipping' text='$4.99'\n- <dd> testid='total' id='total' text='$30.98'\n- <button> testid='checkout' id='checkout' text='Checkout'\n\nElements that appeared during the test but are no longer on the page:\n- <div> testid='product-list' id='products' text=''\n- <ul> testid='cart-items' id='cart-items' text=''\n- <p> testid='coupon-message' id='coupon-message' text=''\n- <ul> testid='applied-coupons' id='applied-coupons' text=''\n- <dd> testid='subtotal' id='subtotal' text='$0.00'\n- <dd> testid='discount' id='discount' text='-$0.00'\n- <dd> testid='shipping' id='shipping' text='$0.00'\n- <dd> testid='total' id='total' text='$0.00'"
+          },
+          "status": "red",
+          "diagnosis": "The bug is reproduced: AssertionError: Locator expected to have text '-$3.25'"
+        }
+      ]
+    },
+    "fix": {
+      "fixed": true,
+      "summary": "Modified applyCoupon to return early with a success message when the coupon is already applied, preventing duplication. Added a unit test in test/cart-duplicate-coupon.test.js to verify the behavior.",
+      "root_cause": "The applyCoupon function in cart.js did not check if a coupon code was already present in cart.coupons before pushing it again, causing duplicate coupon entries and stacked discounts on repeated application.",
+      "escalated": false,
+      "steps": [
+        {
+          "n": 1,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "tool": "list_files",
+          "args": {
+            "path": "."
+          },
+          "result": ".gitignore (2 lines)\nLICENSE (21 lines)\npackage.json (15 lines)\npublic/app.js (74 lines)\npublic/cart.js (83 lines)\npublic/index.html (45 lines)\npublic/styles.css (47 lines)\nREADME.md (27 lines)\nserver.js (39 lines)\ntest/cart.test.js (52 lines)",
+          "ok": true
+        },
+        {
+          "n": 2,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "tool": "read_file",
+          "args": {
+            "path": "public/cart.js"
+          },
+          "result": "   1\t// Cart domain logic for ShopLite. Pure functions over a plain cart object, so\n   2\t// the same module runs in the browser and in Node's test runner.\n   3\t// All money values are integer cents to avoid floating point drift.\n   4\t\n   5\texport const PRODUCTS = [\n   6\t  { id: \"tee\", name: \"Classic Tee\", price: 1999, emoji: \"\ud83d\udc55\" },\n   7\t  { id: \"mug\", name: \"Dev Mug\", price: 1250, emoji: \"\u2615\" },\n   8\t  { id: \"cap\", name: \"Logo Cap\", price: 2400, emoji: \"\ud83e\udde2\" },\n   9\t  { id: \"stickers\", name: \"Sticker Pack\", price: 499, emoji: \"\u2728\" },\n  10\t];\n  11\t\n  12\texport const COUPONS = {\n  13\t  SAVE10: { kind: \"percent\", value: 10, label: \"10% off\" },\n  14\t  FREESHIP: { kind: \"shipping\", label: \"Free shipping\" },\n  15\t};\n  16\t\n  17\texport const SHIPPING_FLAT = 499;\n  18\texport const FREE_SHIPPING_THRESHO",
+          "ok": true
+        },
+        {
+          "n": 3,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "tool": "read_file",
+          "args": {
+            "path": "public/app.js"
+          },
+          "result": "   1\t// ShopLite UI: renders products and the cart, wiring buttons to cart.js.\n   2\timport {\n   3\t  PRODUCTS, addItem, applyCoupon, createCart, formatMoney, removeItem, setQuantity, totals,\n   4\t} from \"./cart.js\";\n   5\t\n   6\tconst cart = createCart();\n   7\tconst $ = (id) => document.getElementById(id);\n   8\t\n   9\tfunction renderProducts() {\n  10\t  $(\"products\").innerHTML = PRODUCTS.map((p) => `\n  11\t    <article class=\"product\" data-testid=\"product-${p.id}\">\n  12\t      <span class=\"emoji\" aria-hidden=\"true\">${p.emoji}</span>\n  13\t      <strong>${p.name}</strong>\n  14\t      <span class=\"price\">${formatMoney(p.price)}</span>\n  15\t      <button data-add=\"${p.id}\" data-testid=\"add-${p.id}\">Add to cart</button>\n  16\t    </article>`).join(\"\");\n  17\t}\n  18\t\n  19\tfunction renderCart() {\n  20\t  $(",
+          "ok": true
+        },
+        {
+          "n": 4,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "tool": "run_tests",
+          "args": {},
+          "result": "Nothing has changed yet: the regression test is still red. Edit the code first.",
+          "ok": true
+        },
+        {
+          "n": 5,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "tool": "read_file",
+          "args": {
+            "path": "public/cart.js",
+            "start_line": 56,
+            "end_line": 63
+          },
+          "result": "  56\texport function applyCoupon(cart, rawCode) {\n  57\t  const code = String(rawCode || \"\").trim().toUpperCase();\n  58\t  if (!COUPONS[code]) {\n  59\t    return { ok: false, message: `\"${rawCode}\" is not a valid coupon code.` };\n  60\t  }\n  61\t  cart.coupons.push(code);\n  62\t  return { ok: true, message: `Coupon ${code} applied: ${COUPONS[code].label}.` };\n  63\t}",
+          "ok": true
+        },
+        {
+          "n": 6,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "tool": "edit_file",
+          "args": {
+            "path": "public/cart.js",
+            "old_text": "export function applyCoupon(cart, rawCode) {\n  const code = String(rawCode || \"\").trim().toUpperCase();\n  if (!COUPONS[code]) {\n    return { ok: false, message: `\"${rawCode}\" is not a valid coupon code.` };\n  }\n  cart.coupons.push(code);\n  return { ok: true, message: `Coupon ${code} applied: ${COUPONS[code].label}.` };\n}",
+            "new_text": "export function applyCoupon(cart, rawCode) {\n  const code = String(rawCode || \"\").trim().toUpperCase();\n  if (!COUPONS[code]) {\n    return { ok: false, message: `\"${rawCode}\" is not a valid coupon code.` };\n  }\n  if (cart.coupons.includes(code)) {\n    return { ok: true, message: `Coupon ${code} is already applied.` };\n  }\n  cart.coupons.push(code);\n  return { ok: true, message: `Coupon ${code} app..."
+          },
+          "result": "Edited public/cart.js.",
+          "ok": true
+        },
+        {
+          "n": 7,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "tool": "run_tests",
+          "args": {},
+          "result": "ALL GREEN. Call finish.\n\nRegression test: PASSED\n\nExisting test suite (`npm test`): PASSED\n> shoplite@1.0.0 test\n> node --test test/*.test.js\n\n\u2714 adding an item updates the subtotal (2.4719ms)\n\u2714 adding the same product twice merges the line (0.2079ms)\n\u2714 increasing quantity updates the subtotal (0.3009ms)\n\u2714 flat shipping applies below the free-shipping threshold (0.1887ms)\n\u2714 SAVE10 takes 10% off the subtotal (0.2617ms)\n\u2714 unknown coupon codes are rejected (0.4ms)\n\u2714 money is formatted with two decimals (0.2798ms)\n\u2139 tests 7\n\u2139 suites 0\n\u2139 pass 7\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 144.7174",
+          "ok": true
+        },
+        {
+          "n": 8,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "tool": "read_file",
+          "args": {
+            "path": "test/cart.test.js"
+          },
+          "result": "   1\t// Existing ShopLite test suite. All of these pass today; Repro adds a new\n   2\t// regression test for each bug it fixes.\n   3\timport { test } from \"node:test\";\n   4\timport assert from \"node:assert/strict\";\n   5\t\n   6\timport {\n   7\t  addItem, applyCoupon, createCart, formatMoney, setQuantity, totals,\n   8\t  SHIPPING_FLAT,\n   9\t} from \"../public/cart.js\";\n  10\t\n  11\ttest(\"adding an item updates the subtotal\", () => {\n  12\t  const cart = addItem(createCart(), \"tee\", 2);\n  13\t  assert.equal(totals(cart).subtotal, 3998);\n  14\t});\n  15\t\n  16\ttest(\"adding the same product twice merges the line\", () => {\n  17\t  const cart = createCart();\n  18\t  addItem(cart, \"mug\");\n  19\t  addItem(cart, \"mug\");\n  20\t  assert.equal(cart.items.length, 1);\n  21\t  assert.equal(cart.items[0].quantity, 2);\n  22\t})",
+          "ok": true
+        },
+        {
+          "n": 9,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "tool": "write_file",
+          "args": {
+            "path": "test/cart-duplicate-coupon.test.js",
+            "content": "// Test for duplicate coupon application not stacking discount\nimport { test } from \"node:test\";\nimport assert from \"node:assert/strict\";\n\nimport {\n  addItem, applyCoupon, createCart, totals,\n} from \"../public/cart.js\";\n\ntest(\"applying the same coupon twice does not stack discount\", () => {\n  const cart = addItem(createCart(), \"tee\"); // $19.99\n  addItem(cart, \"mug\"); // $12.50 -> subtotal $32.49\n..."
+          },
+          "result": "Created test/cart-duplicate-coupon.test.js.",
+          "ok": true
+        },
+        {
+          "n": 10,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "tool": "run_tests",
+          "args": {},
+          "result": "ALL GREEN. Call finish.\n\nRegression test: PASSED\n\nExisting test suite (`npm test`): PASSED\n> shoplite@1.0.0 test\n> node --test test/*.test.js\n\n\u2714 applying the same coupon twice does not stack discount (1.6925ms)\n\u2714 adding an item updates the subtotal (1.5092ms)\n\u2714 adding the same product twice merges the line (0.2097ms)\n\u2714 increasing quantity updates the subtotal (0.3009ms)\n\u2714 flat shipping applies below the free-shipping threshold (0.1877ms)\n\u2714 SAVE10 takes 10% off the subtotal (0.339ms)\n\u2714 unknown coupon codes are rejected (0.17ms)\n\u2714 money is formatted with two decimals (0.1942ms)\n\u2139 tests 8\n\u2139 suites 0\n\u2139 pass 8\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 164.0225",
+          "ok": true
+        },
+        {
+          "n": 11,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "tool": "finish",
+          "args": {
+            "root_cause": "The applyCoupon function in cart.js did not check if a coupon code was already present in cart.coupons before pushing it again, causing duplicate coupon entries and stacked discounts on repeated application.",
+            "summary": "Modified applyCoupon to return early with a success message when the coupon is already applied, preventing duplication. Added a unit test in test/cart-duplicate-coupon.test.js to verify the behavior."
+          },
+          "result": "Done.",
+          "ok": true
+        }
+      ],
+      "changed_files": [
+        "public/cart.js",
+        "test/cart-duplicate-coupon.test.js"
+      ],
+      "files": {
+        "public/cart.js": "// Cart domain logic for ShopLite. Pure functions over a plain cart object, so\n// the same module runs in the browser and in Node's test runner.\n// All money values are integer cents to avoid floating point drift.\n\nexport const PRODUCTS = [\n  { id: \"tee\", name: \"Classic Tee\", price: 1999, emoji: \"\ud83d\udc55\" },\n  { id: \"mug\", name: \"Dev Mug\", price: 1250, emoji: \"\u2615\" },\n  { id: \"cap\", name: \"Logo Cap\", price: 2400, emoji: \"\ud83e\udde2\" },\n  { id: \"stickers\", name: \"Sticker Pack\", price: 499, emoji: \"\u2728\" },\n];\n\nexport const COUPONS = {\n  SAVE10: { kind: \"percent\", value: 10, label: \"10% off\" },\n  FREESHIP: { kind: \"shipping\", label: \"Free shipping\" },\n};\n\nexport const SHIPPING_FLAT = 499;\nexport const FREE_SHIPPING_THRESHOLD = 5000;\n\nexport function createCart() {\n  // `subtotal` is kept as a running total so the UI can read it cheaply.\n  return { items: [], coupons: [], subtotal: 0 };\n}\n\nexport function findProduct(productId) {\n  const product = PRODUCTS.find((p) => p.id === productId);\n  if (!product) throw new Error(`Unknown product: ${productId}`);\n  return product;\n}\n\nexport function addItem(cart, productId, quantity = 1) {\n  const product = findProduct(productId);\n  const line = cart.items.find((item) => item.id === productId);\n  if (line) {\n    line.quantity += quantity;\n  } else {\n    cart.items.push({ id: product.id, name: product.name, price: product.price, quantity });\n  }\n  cart.subtotal += product.price * quantity;\n  return cart;\n}\n\nexport function setQuantity(cart, productId, quantity) {\n  const line = cart.items.find((item) => item.id === productId);\n  if (!line) return cart;\n  cart.subtotal += line.price * (quantity - line.quantity);\n  line.quantity = quantity;\n  return cart;\n}\n\nexport function removeItem(cart, productId) {\n  cart.items = cart.items.filter((item) => item.id !== productId);\n  return cart;\n}\n\nexport function applyCoupon(cart, rawCode) {\n  const code = String(rawCode || \"\").trim().toUpperCase();\n  if (!COUPONS[code]) {\n    return { ok: false, message: `\"${rawCode}\" is not a valid coupon code.` };\n  }\n  if (cart.coupons.includes(code)) {\n    return { ok: true, message: `Coupon ${code} is already applied.` };\n  }\n  cart.coupons.push(code);\n  return { ok: true, message: `Coupon ${code} applied: ${COUPONS[code].label}.` };\n}\n\nexport function totals(cart) {\n  const subtotal = cart.subtotal;\n\n  let discount = 0;\n  let freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;\n  for (const code of cart.coupons) {\n    const coupon = COUPONS[code];\n    if (coupon.kind === \"percent\") discount += Math.round((subtotal * coupon.value) / 100);\n    if (coupon.kind === \"shipping\") freeShipping = true;\n  }\n\n  const shipping = cart.items.length === 0 || freeShipping ? 0 : SHIPPING_FLAT;\n  const total = Math.max(0, subtotal - discount + shipping);\n  return { subtotal, discount, shipping, total };\n}\n\nexport function formatMoney(cents) {\n  return `$${(cents / 100).toFixed(2)}`;\n}\n",
+        "test/cart-duplicate-coupon.test.js": "// Test for duplicate coupon application not stacking discount\nimport { test } from \"node:test\";\nimport assert from \"node:assert/strict\";\n\nimport {\n  addItem, applyCoupon, createCart, totals,\n} from \"../public/cart.js\";\n\ntest(\"applying the same coupon twice does not stack discount\", () => {\n  const cart = addItem(createCart(), \"tee\"); // $19.99\n  addItem(cart, \"mug\"); // $12.50 -> subtotal $32.49\n\n  // First apply\n  const result1 = applyCoupon(cart, \"SAVE10\");\n  assert.equal(result1.ok, true);\n  // Discount should be 10% of 3249 cents = 324.9 -> rounded? In cart.js they use Math.round((subtotal * value)/100)\n  // 3249 * 10 / 100 = 324.9 -> Math.round => 325 cents ($3.25)\n  assert.equal(totals(cart).discount, 325);\n\n  // Second apply of same coupon\n  const result2 = applyCoupon(cart, \"SAVE10\");\n  assert.equal(result2.ok, true);\n  // Message indicates already applied\n  assert.equal(result2.message, \"Coupon SAVE10 is already applied.\");\n  // Discount should remain the same\n  assert.equal(totals(cart).discount, 325);\n});\n"
+      },
+      "diff": "--- a/public/cart.js\n+++ b/public/cart.js\n@@ -58,6 +58,9 @@\n   if (!COUPONS[code]) {\n     return { ok: false, message: `\"${rawCode}\" is not a valid coupon code.` };\n   }\n+  if (cart.coupons.includes(code)) {\n+    return { ok: true, message: `Coupon ${code} is already applied.` };\n+  }\n   cart.coupons.push(code);\n   return { ok: true, message: `Coupon ${code} applied: ${COUPONS[code].label}.` };\n }\n\n--- /dev/null\n+++ b/test/cart-duplicate-coupon.test.js\n@@ -0,0 +1,27 @@\n+// Test for duplicate coupon application not stacking discount\n+import { test } from \"node:test\";\n+import assert from \"node:assert/strict\";\n+\n+import {\n+  addItem, applyCoupon, createCart, totals,\n+} from \"../public/cart.js\";\n+\n+test(\"applying the same coupon twice does not stack discount\", () => {\n+  const cart = addItem(createCart(), \"tee\"); // $19.99\n+  addItem(cart, \"mug\"); // $12.50 -> subtotal $32.49\n+\n+  // First apply\n+  const result1 = applyCoupon(cart, \"SAVE10\");\n+  assert.equal(result1.ok, true);\n+  // Discount should be 10% of 3249 cents = 324.9 -> rounded? In cart.js they use Math.round((subtotal * value)/100)\n+  // 3249 * 10 / 100 = 324.9 -> Math.round => 325 cents ($3.25)\n+  assert.equal(totals(cart).discount, 325);\n+\n+  // Second apply of same coupon\n+  const result2 = applyCoupon(cart, \"SAVE10\");\n+  assert.equal(result2.ok, true);\n+  // Message indicates already applied\n+  assert.equal(result2.message, \"Coupon SAVE10 is already applied.\");\n+  // Discount should remain the same\n+  assert.equal(totals(cart).discount, 325);\n+});\n",
+      "research": [],
+      "checks": {
+        "repro": {
+          "outcome": "passed",
+          "message": "",
+          "duration_s": 4.34,
+          "screenshot": null,
+          "page_snapshot": "- banner: \ud83d\udecd\ufe0f ShopLite Demo store\n- main:\n  - region \"Products\":\n    - heading \"Products\" [level=1]\n    - article:\n      - strong: Classic Tee\n      - text: $19.99\n      - button \"Add to cart\"\n    - article:\n      - strong: Dev Mug\n      - text: $12.50\n      - button \"Add to cart\"\n    - article:\n      - strong: Logo Cap\n      - text: $24.00\n      - button \"Add to cart\"\n    - article:\n      - strong: Sticker Pack\n      - text: $4.99\n      - button \"Add to cart\"\n  - complementary \"Your cart\":\n    - heading \"Your cart\" [level=2]\n    - list:\n      - listitem:\n        - strong: Classic Tee\n        - button \"Remove Classic Tee\": Remove\n        - button \"Decrease quantity\": \u2212\n        - text: \"1\"\n        - button \"Increase quantity\": +\n        - text: $19.99\n      - listitem:\n        - strong: Dev Mug\n        - button \"Remove Dev Mug\": Remove\n        - button \"Decrease quantity\": \u2212\n        - text: \"1\"\n        - button \"Increase quantity\": +\n        - text: $12.50\n    - textbox \"Coupon code\"\n    - button \"Apply\"\n    - status: Coupon SAVE10 is already applied.\n    - list:\n      - listitem: SAVE10\n    - term: Subtotal\n    - definition: $32.49\n    - term: Discount\n    - definition: \"-$3.25\"\n    - term: Shipping\n    - definition: $4.99\n    - term: Total\n    - definition: $34.23\n    - button \"Checkout\"\n\nInteractive elements now:\n- <div> testid='product-list' id='products' text='\ud83d\udc55\\nClassic Tee\\n$19.99\\nAdd to cart\\n\u2615\\nDev Mug\\n$12.50\\nAdd to ca'\n- <article> testid='product-tee' id=None text='\ud83d\udc55\\nClassic Tee\\n$19.99\\nAdd to cart'\n- <button> testid='add-tee' id=None text='Add to cart'\n- <article> testid='product-mug' id=None text='\u2615\\nDev Mug\\n$12.50\\nAdd to cart'\n- <button> testid='add-mug' id=None text='Add to cart'\n- <article> testid='product-cap' id=None text='\ud83e\udde2\\nLogo Cap\\n$24.00\\nAdd to cart'\n- <button> testid='add-cap' id=None text='Add to cart'\n- <article> testid='product-stickers' id=None text='\u2728\\nSticker Pack\\n$4.99\\nAdd to cart'\n- <button> testid='add-stickers' id=None text='Add to cart'\n- <ul> testid='cart-items' id='cart-items' text='Classic Tee\\nRemove\\n\u2212\\n1\\n+\\n$19.99\\nDev Mug\\nRemove\\n\u2212\\n1\\n+\\n$12.50'\n- <li> testid='cart-line-tee' id=None text='Classic Tee\\nRemove\\n\u2212\\n1\\n+\\n$19.99'\n- <button> testid='remove-tee' id=None text='Remove' aria-label='Remove Classic Tee'\n- <button> testid='dec-tee' id=None text='\u2212' aria-label='Decrease quantity'\n- <span> testid='qty-tee' id=None text='1'\n- <button> testid='inc-tee' id=None text='+' aria-label='Increase quantity'\n- <li> testid='cart-line-mug' id=None text='Dev Mug\\nRemove\\n\u2212\\n1\\n+\\n$12.50'\n- <button> testid='remove-mug' id=None text='Remove' aria-label='Remove Dev Mug'\n- <button> testid='dec-mug' id=None text='\u2212' aria-label='Decrease quantity'\n- <span> testid='qty-mug' id=None text='1'\n- <button> testid='inc-mug' id=None text='+' aria-label='Increase quantity'\n- <form> testid='coupon-form' id='coupon-form' text='Apply'\n- <input> testid='coupon-input' id='coupon-input' text='Coupon code'\n- <button> testid='apply-coupon' id=None text='Apply'\n- <p> testid='coupon-message' id='coupon-message' text='Coupon SAVE10 is already applied.'\n- <ul> testid='applied-coupons' id='applied-coupons' text='SAVE10'\n- <dd> testid='subtotal' id='subtotal' text='$32.49'\n- <dd> testid='discount' id='discount' text='-$3.25'\n- <dd> testid='shipping' id='shipping' text='$4.99'\n- <dd> testid='total' id='total' text='$34.23'\n- <button> testid='checkout' id='checkout' text='Checkout'\n\nElements that appeared during the test but are no longer on the page:\n- <div> testid='product-list' id='products' text=''\n- <ul> testid='cart-items' id='cart-items' text=''\n- <p> testid='coupon-message' id='coupon-message' text=''\n- <ul> testid='applied-coupons' id='applied-coupons' text=''\n- <dd> testid='subtotal' id='subtotal' text='$0.00'\n- <dd> testid='discount' id='discount' text='-$0.00'\n- <dd> testid='shipping' id='shipping' text='$0.00'\n- <dd> testid='total' id='total' text='$0.00'"
+        },
+        "suite": {
+          "command": "npm test",
+          "passed": true,
+          "output": "> shoplite@1.0.0 test\n> node --test test/*.test.js\n\n\u2714 applying the same coupon twice does not stack discount (1.6925ms)\n\u2714 adding an item updates the subtotal (1.5092ms)\n\u2714 adding the same product twice merges the line (0.2097ms)\n\u2714 increasing quantity updates the subtotal (0.3009ms)\n\u2714 flat shipping applies below the free-shipping threshold (0.1877ms)\n\u2714 SAVE10 takes 10% off the subtotal (0.339ms)\n\u2714 unknown coupon codes are rejected (0.17ms)\n\u2714 money is formatted with two decimals (0.1942ms)\n\u2139 tests 8\n\u2139 suites 0\n\u2139 pass 8\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 164.0225"
+        }
+      }
+    },
+    "verify": {
+      "repro": {
+        "outcome": "passed",
+        "message": "",
+        "duration_s": 3.26,
+        "screenshot": null,
+        "page_snapshot": "- banner: \ud83d\udecd\ufe0f ShopLite Demo store\n- main:\n  - region \"Products\":\n    - heading \"Products\" [level=1]\n    - article:\n      - strong: Classic Tee\n      - text: $19.99\n      - button \"Add to cart\"\n    - article:\n      - strong: Dev Mug\n      - text: $12.50\n      - button \"Add to cart\"\n    - article:\n      - strong: Logo Cap\n      - text: $24.00\n      - button \"Add to cart\"\n    - article:\n      - strong: Sticker Pack\n      - text: $4.99\n      - button \"Add to cart\"\n  - complementary \"Your cart\":\n    - heading \"Your cart\" [level=2]\n    - list:\n      - listitem:\n        - strong: Classic Tee\n        - button \"Remove Classic Tee\": Remove\n        - button \"Decrease quantity\": \u2212\n        - text: \"1\"\n        - button \"Increase quantity\": +\n        - text: $19.99\n      - listitem:\n        - strong: Dev Mug\n        - button \"Remove Dev Mug\": Remove\n        - button \"Decrease quantity\": \u2212\n        - text: \"1\"\n        - button \"Increase quantity\": +\n        - text: $12.50\n    - textbox \"Coupon code\"\n    - button \"Apply\"\n    - status: Coupon SAVE10 is already applied.\n    - list:\n      - listitem: SAVE10\n    - term: Subtotal\n    - definition: $32.49\n    - term: Discount\n    - definition: \"-$3.25\"\n    - term: Shipping\n    - definition: $4.99\n    - term: Total\n    - definition: $34.23\n    - button \"Checkout\"\n\nInteractive elements now:\n- <div> testid='product-list' id='products' text='\ud83d\udc55\\nClassic Tee\\n$19.99\\nAdd to cart\\n\u2615\\nDev Mug\\n$12.50\\nAdd to ca'\n- <article> testid='product-tee' id=None text='\ud83d\udc55\\nClassic Tee\\n$19.99\\nAdd to cart'\n- <button> testid='add-tee' id=None text='Add to cart'\n- <article> testid='product-mug' id=None text='\u2615\\nDev Mug\\n$12.50\\nAdd to cart'\n- <button> testid='add-mug' id=None text='Add to cart'\n- <article> testid='product-cap' id=None text='\ud83e\udde2\\nLogo Cap\\n$24.00\\nAdd to cart'\n- <button> testid='add-cap' id=None text='Add to cart'\n- <article> testid='product-stickers' id=None text='\u2728\\nSticker Pack\\n$4.99\\nAdd to cart'\n- <button> testid='add-stickers' id=None text='Add to cart'\n- <ul> testid='cart-items' id='cart-items' text='Classic Tee\\nRemove\\n\u2212\\n1\\n+\\n$19.99\\nDev Mug\\nRemove\\n\u2212\\n1\\n+\\n$12.50'\n- <li> testid='cart-line-tee' id=None text='Classic Tee\\nRemove\\n\u2212\\n1\\n+\\n$19.99'\n- <button> testid='remove-tee' id=None text='Remove' aria-label='Remove Classic Tee'\n- <button> testid='dec-tee' id=None text='\u2212' aria-label='Decrease quantity'\n- <span> testid='qty-tee' id=None text='1'\n- <button> testid='inc-tee' id=None text='+' aria-label='Increase quantity'\n- <li> testid='cart-line-mug' id=None text='Dev Mug\\nRemove\\n\u2212\\n1\\n+\\n$12.50'\n- <button> testid='remove-mug' id=None text='Remove' aria-label='Remove Dev Mug'\n- <button> testid='dec-mug' id=None text='\u2212' aria-label='Decrease quantity'\n- <span> testid='qty-mug' id=None text='1'\n- <button> testid='inc-mug' id=None text='+' aria-label='Increase quantity'\n- <form> testid='coupon-form' id='coupon-form' text='Apply'\n- <input> testid='coupon-input' id='coupon-input' text='Coupon code'\n- <button> testid='apply-coupon' id=None text='Apply'\n- <p> testid='coupon-message' id='coupon-message' text='Coupon SAVE10 is already applied.'\n- <ul> testid='applied-coupons' id='applied-coupons' text='SAVE10'\n- <dd> testid='subtotal' id='subtotal' text='$32.49'\n- <dd> testid='discount' id='discount' text='-$3.25'\n- <dd> testid='shipping' id='shipping' text='$4.99'\n- <dd> testid='total' id='total' text='$34.23'\n- <button> testid='checkout' id='checkout' text='Checkout'\n\nElements that appeared during the test but are no longer on the page:\n- <div> testid='product-list' id='products' text=''\n- <ul> testid='cart-items' id='cart-items' text=''\n- <p> testid='coupon-message' id='coupon-message' text=''\n- <ul> testid='applied-coupons' id='applied-coupons' text=''\n- <dd> testid='subtotal' id='subtotal' text='$0.00'\n- <dd> testid='discount' id='discount' text='-$0.00'\n- <dd> testid='shipping' id='shipping' text='$0.00'\n- <dd> testid='total' id='total' text='$0.00'"
+      },
+      "suite": {
+        "command": "npm test",
+        "passed": true,
+        "output": "> shoplite@1.0.0 test\n> node --test test/*.test.js\n\n\u2714 applying the same coupon twice does not stack discount (1.7913ms)\n\u2714 adding an item updates the subtotal (1.3879ms)\n\u2714 adding the same product twice merges the line (0.3447ms)\n\u2714 increasing quantity updates the subtotal (0.42ms)\n\u2714 flat shipping applies below the free-shipping threshold (0.2471ms)\n\u2714 SAVE10 takes 10% off the subtotal (0.3432ms)\n\u2714 unknown coupon codes are rejected (0.2685ms)\n\u2714 money is formatted with two decimals (0.2452ms)\n\u2139 tests 8\n\u2139 suites 0\n\u2139 pass 8\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 153.4798"
+      }
+    },
+    "pull_request": {
+      "number": 3,
+      "url": "https://github.com/princemittalr/shoplite/pull/3",
+      "branch": "repro/coupon-code-applies-discount-mul-20261023-080440",
+      "files": [
+        "e2e/test_coupon_code_applies_discount_multiple_ti.py",
+        "public/cart.js",
+        "test/cart-duplicate-coupon.test.js"
+      ]
+    },
+    "success": true
+  },
+  "events": [
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 0,
+      "stage": "pipeline",
+      "status": "started",
+      "message": "Repro run on shoplite-coupon.mp4",
+      "model": null,
+      "tokens": 0,
+      "latency_s": 0.0,
+      "payload": {
+        "video": "shoplite-coupon.mp4",
+        "repo": "princemittalr/shoplite",
+        "app_dir": null
+      },
+      "ts": 1792722802.8483124
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 1,
+      "stage": "perceive",
+      "status": "started",
+      "message": "Watching the recording",
+      "model": "nvidia/Nemotron-3.5-Super-VL",
+      "tokens": 0,
+      "latency_s": 0.0,
+      "payload": {},
+      "ts": 1792722804.462959
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 2,
+      "stage": "perceive",
+      "status": "done",
+      "message": "6 steps: Coupon code applies discount multiple times when applied repeatedly",
+      "model": "nvidia/Nemotron-3.5-Super-VL",
+      "tokens": 0,
+      "latency_s": 0.0,
+      "payload": {
+        "report": {
+          "title": "Coupon code applies discount multiple times when applied repeatedly",
+          "app_url": "https://shoplite-demo.com",
+          "page": "Product Listing / Cart",
+          "steps": [
+            {
+              "index": 1,
+              "action": "click",
+              "target": "Add to cart (Classic Tee card)",
+              "value": null,
+              "timestamp_s": 2.06,
+              "observation": null
+            },
+            {
+              "index": 2,
+              "action": "click",
+              "target": "Add to cart (Dev Mug card)",
+              "value": null,
+              "timestamp_s": 3.69,
+              "observation": null
+            },
+            {
+              "index": 3,
+              "action": "type",
+              "target": "Coupon code input field",
+              "value": "SAVE10",
+              "timestamp_s": 6.19,
+              "observation": null
+            },
+            {
+              "index": 4,
+              "action": "click",
+              "target": "Apply button",
+              "value": null,
+              "timestamp_s": 7.44,
+              "observation": null
+            },
+            {
+              "index": 5,
+              "action": "type",
+              "target": "Coupon code input field",
+              "value": "SAVE10",
+              "timestamp_s": 10.62,
+              "observation": null
+            },
+            {
+              "index": 6,
+              "action": "click",
+              "target": "Apply button",
+              "value": null,
+              "timestamp_s": 11.94,
+              "observation": null
+            }
+          ],
+          "expected_behavior": "Applying the same coupon code (SAVE10) a second time should not stack the discount. The discount should remain at -$3.25 (10% of $32.49 subtotal) and the total should remain $34.23, or an error message should indicate the coupon is already applied.",
+          "actual_behavior": "Applying the coupon SAVE10 a second time stacked the discount. The discount changed from -$3.25 to -$6.50, and the total dropped from $34.23 to $30.98, effectively giving 20% off instead of 10%.",
+          "error_text": [
+            "Discount stacked incorrectly: After first apply, Discount was -$3.25 and Total was $34.23. After second apply of the same code SAVE10, Discount became -$6.50 and Total became $30.98."
+          ],
+          "key_moments": [],
+          "confidence": 0.98
+        }
+      },
+      "ts": 1792722804.4631734
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 3,
+      "stage": "triage",
+      "status": "started",
+      "message": "Ranking likely files",
+      "model": "nvidia/Nemotron-3_5-Lightning",
+      "tokens": 0,
+      "latency_s": 0.0,
+      "payload": {},
+      "ts": 1792722804.463197
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 4,
+      "stage": "triage",
+      "status": "done",
+      "message": "Start with public/cart.js, public/app.js, public/index.html",
+      "model": "nvidia/Nemotron-3_5-Lightning",
+      "tokens": 1024,
+      "latency_s": 1.88,
+      "payload": {
+        "files": [
+          {
+            "path": "public/cart.js",
+            "reason": "The bug report explicitly describes coupon stacking behavior. This file defines the `applyCoupon` function which is the most likely location for the logic error causing the discount to stack on repeated application."
+          },
+          {
+            "path": "public/app.js",
+            "reason": "This file handles the UI wiring and event listeners (renderProducts, renderCart, showMessage). It likely calls the `applyCoupon` function from cart.js when the Apply button is clicked, making it the entry point for the bug flow."
+          },
+          {
+            "path": "public/index.html",
+            "reason": "The bug report specifies the 'Product Listing / Cart' page. The HTML structure defines the coupon input field and Apply button targets mentioned in the reproduction steps."
+          }
+        ],
+        "hypothesis": "The `applyCoupon` function in cart.js does not check if a coupon code is already applied to the cart before calculating and applying the discount. When the user types 'SAVE10' and clicks Apply a second time, the function likely adds a second discount instance instead of detecting the duplicate and rejecting the action or updating the existing one."
+      },
+      "ts": 1792722806.3462002
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 5,
+      "stage": "reproduce",
+      "status": "started",
+      "message": "Writing a failing Playwright test",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "tokens": 0,
+      "latency_s": 0.0,
+      "payload": {},
+      "ts": 1792722806.346237
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 6,
+      "stage": "reproduce",
+      "status": "done",
+      "message": "RED in 1 attempt(s): The bug is reproduced: AssertionError: Locator expected to have text '-$3.25'",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "tokens": 5152,
+      "latency_s": 23.39,
+      "payload": {
+        "attempts": [
+          {
+            "attempt": 1,
+            "model": "nvidia/nemotron-3-super-120b-a12b",
+            "status": "red",
+            "diagnosis": "The bug is reproduced: AssertionError: Locator expected to have text '-$3.25'"
+          }
+        ],
+        "test_code": "def test_repro(page, base_url):\n    page.goto(base_url)\n    # Step 1 (t=2.06s): click Add to cart (Classic Tee card)\n    page.get_by_test_id(\"add-tee\").click()\n    # Step 2 (t=3.69s): click Add to cart (Dev Mug card)\n    page.get_by_test_id(\"add-mug\").click()\n    # Step 3 (t=6.19s): type coupon code SAVE10\n    page.get_by_test_id(\"coupon-input\").fill(\"SAVE10\")\n    # Step 4 (t=7.44s): click Apply button\n    page.get_by_test_id(\"apply-coupon\").click()\n    # Capture discount and total after first apply\n    discount_after_first = page.get_by_test_id(\"discount\").inner_text()\n    total_after_first = page.get_by_test_id(\"total\").inner_text()\n    # Step 5 (t=10.62s): type coupon code SAVE10 again\n    page.get_by_test_id(\"coupon-input\").fill(\"SAVE10\")\n    # Step 6 (t=11.94s): click Apply button again\n    page.get_by_test_id(\"apply-coupon\").click()\n    # Assert discount and total unchanged (prevents stacking)\n    expect(page.get_by_test_id(\"discount\")).to_have_text(discount_after_first)\n    expect(page.get_by_test_id(\"total\")).to_have_text(total_after_first)\n"
+      },
+      "ts": 1792722829.7380195
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 7,
+      "stage": "research",
+      "status": "started",
+      "message": "Web research is available to the fix agent (Tavily)",
+      "model": null,
+      "tokens": 0,
+      "latency_s": 0.0,
+      "payload": {},
+      "ts": 1792722829.792206
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 8,
+      "stage": "fix",
+      "status": "started",
+      "message": "Fixing the code",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "tokens": 0,
+      "latency_s": 0.0,
+      "payload": {},
+      "ts": 1792722829.7922533
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 9,
+      "stage": "fix",
+      "status": "progress",
+      "message": "list_files(path=.)",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "tokens": 2555,
+      "latency_s": 1.46,
+      "payload": {
+        "n": 1,
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "tool": "list_files",
+        "args": {
+          "path": "."
+        },
+        "result": ".gitignore (2 lines)\nLICENSE (21 lines)\npackage.json (15 lines)\npublic/app.js (74 lines)\npublic/cart.js (83 lines)\npublic/index.html (45 lines)\npublic/styles.css (47 lines)\nREADME.md (27 lines)\nserver.js (39 lines)\ntest/cart.test.js (52 lines)",
+        "ok": true
+      },
+      "ts": 1792722831.2531238
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 10,
+      "stage": "fix",
+      "status": "progress",
+      "message": "read_file(path=public/cart.js)",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "tokens": 5238,
+      "latency_s": 2.45,
+      "payload": {
+        "n": 2,
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "tool": "read_file",
+        "args": {
+          "path": "public/cart.js"
+        },
+        "result": "   1\t// Cart domain logic for ShopLite. Pure functions over a plain cart object, so\n   2\t// the same module runs in the browser and in Node's test runner.\n   3\t// All money values are integer cents to avoid floating point drift.\n   4\t\n   5\texport const PRODUCTS = [\n   6\t  { id: \"tee\", name: \"Classic Tee\", price: 1999, emoji: \"\ud83d\udc55\" },\n   7\t  { id: \"mug\", name: \"Dev Mug\", price: 1250, emoji: \"\u2615\" },\n   8\t  { id: \"cap\", name: \"Logo Cap\", price: 2400, emoji: \"\ud83e\udde2\" },\n   9\t  { id: \"stickers\", name: \"Sticker Pack\", price: 499, emoji: \"\u2728\" },\n  10\t];\n  11\t\n  12\texport const COUPONS = {\n  13\t  SAVE10: { kind: \"percent\", value: 10, label: \"10% off\" },\n  14\t  FREESHIP: { kind: \"shipping\", label: \"Free shipping\" },\n  15\t};\n  16\t\n  17\texport const SHIPPING_FLAT = 499;\n  18\texport const FREE_SHIPPING_THRESHO",
+        "ok": true
+      },
+      "ts": 1792722832.2466688
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 11,
+      "stage": "fix",
+      "status": "progress",
+      "message": "read_file(path=public/app.js)",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "tokens": 9233,
+      "latency_s": 3.88,
+      "payload": {
+        "n": 3,
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "tool": "read_file",
+        "args": {
+          "path": "public/app.js"
+        },
+        "result": "   1\t// ShopLite UI: renders products and the cart, wiring buttons to cart.js.\n   2\timport {\n   3\t  PRODUCTS, addItem, applyCoupon, createCart, formatMoney, removeItem, setQuantity, totals,\n   4\t} from \"./cart.js\";\n   5\t\n   6\tconst cart = createCart();\n   7\tconst $ = (id) => document.getElementById(id);\n   8\t\n   9\tfunction renderProducts() {\n  10\t  $(\"products\").innerHTML = PRODUCTS.map((p) => `\n  11\t    <article class=\"product\" data-testid=\"product-${p.id}\">\n  12\t      <span class=\"emoji\" aria-hidden=\"true\">${p.emoji}</span>\n  13\t      <strong>${p.name}</strong>\n  14\t      <span class=\"price\">${formatMoney(p.price)}</span>\n  15\t      <button data-add=\"${p.id}\" data-testid=\"add-${p.id}\">Add to cart</button>\n  16\t    </article>`).join(\"\");\n  17\t}\n  18\t\n  19\tfunction renderCart() {\n  20\t  $(",
+        "ok": true
+      },
+      "ts": 1792722833.6745572
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 12,
+      "stage": "fix",
+      "status": "progress",
+      "message": "run_tests()",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "tokens": 14569,
+      "latency_s": 7.33,
+      "payload": {
+        "n": 4,
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "tool": "run_tests",
+        "args": {},
+        "result": "Nothing has changed yet: the regression test is still red. Edit the code first.",
+        "ok": true
+      },
+      "ts": 1792722837.118418
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 13,
+      "stage": "fix",
+      "status": "progress",
+      "message": "read_file(path=public/cart.js, start_line=56, end_line=63)",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "tokens": 20229,
+      "latency_s": 14.92,
+      "payload": {
+        "n": 5,
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "tool": "read_file",
+        "args": {
+          "path": "public/cart.js",
+          "start_line": 56,
+          "end_line": 63
+        },
+        "result": "  56\texport function applyCoupon(cart, rawCode) {\n  57\t  const code = String(rawCode || \"\").trim().toUpperCase();\n  58\t  if (!COUPONS[code]) {\n  59\t    return { ok: false, message: `\"${rawCode}\" is not a valid coupon code.` };\n  60\t  }\n  61\t  cart.coupons.push(code);\n  62\t  return { ok: true, message: `Coupon ${code} applied: ${COUPONS[code].label}.` };\n  63\t}",
+        "ok": true
+      },
+      "ts": 1792722844.716704
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 14,
+      "stage": "fix",
+      "status": "progress",
+      "message": "edit_file(path=public/cart.js, old_text=export function applyCoupon(cart, rawCode) {\n  const code = , new_text=export function applyCoupon(cart, rawCode) {\n  const code = )",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "tokens": 25948,
+      "latency_s": 17.57,
+      "payload": {
+        "n": 6,
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "tool": "edit_file",
+        "args": {
+          "path": "public/cart.js",
+          "old_text": "export function applyCoupon(cart, rawCode) {\n  const code = String(rawCode || \"\").trim().toUpperCase();\n  if (!COUPONS[code]) {\n    return { ok: false, message: `\"${rawCode}\" is not a valid coupon code.` };\n  }\n  cart.coupons.push(code);\n  return { ok: true, message: `Coupon ${code} applied: ${COUPONS[code].label}.` };\n}",
+          "new_text": "export function applyCoupon(cart, rawCode) {\n  const code = String(rawCode || \"\").trim().toUpperCase();\n  if (!COUPONS[code]) {\n    return { ok: false, message: `\"${rawCode}\" is not a valid coupon code.` };\n  }\n  if (cart.coupons.includes(code)) {\n    return { ok: true, message: `Coupon ${code} is already applied.` };\n  }\n  cart.coupons.push(code);\n  return { ok: true, message: `Coupon ${code} app..."
+        },
+        "result": "Edited public/cart.js.",
+        "ok": true
+      },
+      "ts": 1792722847.3636532
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 15,
+      "stage": "fix",
+      "status": "progress",
+      "message": "run_tests()",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "tokens": 31545,
+      "latency_s": 25.25,
+      "payload": {
+        "n": 7,
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "tool": "run_tests",
+        "args": {},
+        "result": "ALL GREEN. Call finish.\n\nRegression test: PASSED\n\nExisting test suite (`npm test`): PASSED\n> shoplite@1.0.0 test\n> node --test test/*.test.js\n\n\u2714 adding an item updates the subtotal (2.4719ms)\n\u2714 adding the same product twice merges the line (0.2079ms)\n\u2714 increasing quantity updates the subtotal (0.3009ms)\n\u2714 flat shipping applies below the free-shipping threshold (0.1887ms)\n\u2714 SAVE10 takes 10% off the subtotal (0.2617ms)\n\u2714 unknown coupon codes are rejected (0.4ms)\n\u2714 money is formatted with two decimals (0.2798ms)\n\u2139 tests 7\n\u2139 suites 0\n\u2139 pass 7\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 144.7174",
+        "ok": true
+      },
+      "ts": 1792722855.0463862
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 16,
+      "stage": "fix",
+      "status": "progress",
+      "message": "read_file(path=test/cart.test.js)",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "tokens": 37484,
+      "latency_s": 27.31,
+      "payload": {
+        "n": 8,
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "tool": "read_file",
+        "args": {
+          "path": "test/cart.test.js"
+        },
+        "result": "   1\t// Existing ShopLite test suite. All of these pass today; Repro adds a new\n   2\t// regression test for each bug it fixes.\n   3\timport { test } from \"node:test\";\n   4\timport assert from \"node:assert/strict\";\n   5\t\n   6\timport {\n   7\t  addItem, applyCoupon, createCart, formatMoney, setQuantity, totals,\n   8\t  SHIPPING_FLAT,\n   9\t} from \"../public/cart.js\";\n  10\t\n  11\ttest(\"adding an item updates the subtotal\", () => {\n  12\t  const cart = addItem(createCart(), \"tee\", 2);\n  13\t  assert.equal(totals(cart).subtotal, 3998);\n  14\t});\n  15\t\n  16\ttest(\"adding the same product twice merges the line\", () => {\n  17\t  const cart = createCart();\n  18\t  addItem(cart, \"mug\");\n  19\t  addItem(cart, \"mug\");\n  20\t  assert.equal(cart.items.length, 1);\n  21\t  assert.equal(cart.items[0].quantity, 2);\n  22\t})",
+        "ok": true
+      },
+      "ts": 1792722857.1047947
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 17,
+      "stage": "fix",
+      "status": "progress",
+      "message": "write_file(path=test/cart-duplicate-coupon.test.js, content=// Test for duplicate coupon application not stacking discou)",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "tokens": 44557,
+      "latency_s": 30.94,
+      "payload": {
+        "n": 9,
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "tool": "write_file",
+        "args": {
+          "path": "test/cart-duplicate-coupon.test.js",
+          "content": "// Test for duplicate coupon application not stacking discount\nimport { test } from \"node:test\";\nimport assert from \"node:assert/strict\";\n\nimport {\n  addItem, applyCoupon, createCart, totals,\n} from \"../public/cart.js\";\n\ntest(\"applying the same coupon twice does not stack discount\", () => {\n  const cart = addItem(createCart(), \"tee\"); // $19.99\n  addItem(cart, \"mug\"); // $12.50 -> subtotal $32.49\n..."
+        },
+        "result": "Created test/cart-duplicate-coupon.test.js.",
+        "ok": true
+      },
+      "ts": 1792722860.7282693
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 18,
+      "stage": "fix",
+      "status": "progress",
+      "message": "run_tests()",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "tokens": 51673,
+      "latency_s": 39.62,
+      "payload": {
+        "n": 10,
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "tool": "run_tests",
+        "args": {},
+        "result": "ALL GREEN. Call finish.\n\nRegression test: PASSED\n\nExisting test suite (`npm test`): PASSED\n> shoplite@1.0.0 test\n> node --test test/*.test.js\n\n\u2714 applying the same coupon twice does not stack discount (1.6925ms)\n\u2714 adding an item updates the subtotal (1.5092ms)\n\u2714 adding the same product twice merges the line (0.2097ms)\n\u2714 increasing quantity updates the subtotal (0.3009ms)\n\u2714 flat shipping applies below the free-shipping threshold (0.1877ms)\n\u2714 SAVE10 takes 10% off the subtotal (0.339ms)\n\u2714 unknown coupon codes are rejected (0.17ms)\n\u2714 money is formatted with two decimals (0.1942ms)\n\u2139 tests 8\n\u2139 suites 0\n\u2139 pass 8\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 164.0225",
+        "ok": true
+      },
+      "ts": 1792722869.4119341
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 19,
+      "stage": "fix",
+      "status": "progress",
+      "message": "finish(root_cause=The applyCoupon function in cart.js did not check if a coupo, summary=Modified applyCoupon to return early with a success message )",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "tokens": 59165,
+      "latency_s": 42.61,
+      "payload": {
+        "n": 11,
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "tool": "finish",
+        "args": {
+          "root_cause": "The applyCoupon function in cart.js did not check if a coupon code was already present in cart.coupons before pushing it again, causing duplicate coupon entries and stacked discounts on repeated application.",
+          "summary": "Modified applyCoupon to return early with a success message when the coupon is already applied, preventing duplication. Added a unit test in test/cart-duplicate-coupon.test.js to verify the behavior."
+        },
+        "result": "Done.",
+        "ok": true
+      },
+      "ts": 1792722872.4019198
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 20,
+      "stage": "fix",
+      "status": "done",
+      "message": "Fixed public/cart.js, test/cart-duplicate-coupon.test.js: Modified applyCoupon to return early with a success message when the coupon is already applied, preventing duplication. Added a unit test in test/cart-duplicate",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "tokens": 59165,
+      "latency_s": 42.62,
+      "payload": {
+        "fixed": true,
+        "summary": "Modified applyCoupon to return early with a success message when the coupon is already applied, preventing duplication. Added a unit test in test/cart-duplicate-coupon.test.js to verify the behavior.",
+        "root_cause": "The applyCoupon function in cart.js did not check if a coupon code was already present in cart.coupons before pushing it again, causing duplicate coupon entries and stacked discounts on repeated application.",
+        "escalated": false,
+        "changed_files": [
+          "public/cart.js",
+          "test/cart-duplicate-coupon.test.js"
+        ],
+        "files": {
+          "public/cart.js": "// Cart domain logic for ShopLite. Pure functions over a plain cart object, so\n// the same module runs in the browser and in Node's test runner.\n// All money values are integer cents to avoid floating point drift.\n\nexport const PRODUCTS = [\n  { id: \"tee\", name: \"Classic Tee\", price: 1999, emoji: \"\ud83d\udc55\" },\n  { id: \"mug\", name: \"Dev Mug\", price: 1250, emoji: \"\u2615\" },\n  { id: \"cap\", name: \"Logo Cap\", price: 2400, emoji: \"\ud83e\udde2\" },\n  { id: \"stickers\", name: \"Sticker Pack\", price: 499, emoji: \"\u2728\" },\n];\n\nexport const COUPONS = {\n  SAVE10: { kind: \"percent\", value: 10, label: \"10% off\" },\n  FREESHIP: { kind: \"shipping\", label: \"Free shipping\" },\n};\n\nexport const SHIPPING_FLAT = 499;\nexport const FREE_SHIPPING_THRESHOLD = 5000;\n\nexport function createCart() {\n  // `subtotal` is kept as a running total so the UI can read it cheaply.\n  return { items: [], coupons: [], subtotal: 0 };\n}\n\nexport function findProduct(productId) {\n  const product = PRODUCTS.find((p) => p.id === productId);\n  if (!product) throw new Error(`Unknown product: ${productId}`);\n  return product;\n}\n\nexport function addItem(cart, productId, quantity = 1) {\n  const product = findProduct(productId);\n  const line = cart.items.find((item) => item.id === productId);\n  if (line) {\n    line.quantity += quantity;\n  } else {\n    cart.items.push({ id: product.id, name: product.name, price: product.price, quantity });\n  }\n  cart.subtotal += product.price * quantity;\n  return cart;\n}\n\nexport function setQuantity(cart, productId, quantity) {\n  const line = cart.items.find((item) => item.id === productId);\n  if (!line) return cart;\n  cart.subtotal += line.price * (quantity - line.quantity);\n  line.quantity = quantity;\n  return cart;\n}\n\nexport function removeItem(cart, productId) {\n  cart.items = cart.items.filter((item) => item.id !== productId);\n  return cart;\n}\n\nexport function applyCoupon(cart, rawCode) {\n  const code = String(rawCode || \"\").trim().toUpperCase();\n  if (!COUPONS[code]) {\n    return { ok: false, message: `\"${rawCode}\" is not a valid coupon code.` };\n  }\n  if (cart.coupons.includes(code)) {\n    return { ok: true, message: `Coupon ${code} is already applied.` };\n  }\n  cart.coupons.push(code);\n  return { ok: true, message: `Coupon ${code} applied: ${COUPONS[code].label}.` };\n}\n\nexport function totals(cart) {\n  const subtotal = cart.subtotal;\n\n  let discount = 0;\n  let freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;\n  for (const code of cart.coupons) {\n    const coupon = COUPONS[code];\n    if (coupon.kind === \"percent\") discount += Math.round((subtotal * coupon.value) / 100);\n    if (coupon.kind === \"shipping\") freeShipping = true;\n  }\n\n  const shipping = cart.items.length === 0 || freeShipping ? 0 : SHIPPING_FLAT;\n  const total = Math.max(0, subtotal - discount + shipping);\n  return { subtotal, discount, shipping, total };\n}\n\nexport function formatMoney(cents) {\n  return `$${(cents / 100).toFixed(2)}`;\n}\n",
+          "test/cart-duplicate-coupon.test.js": "// Test for duplicate coupon application not stacking discount\nimport { test } from \"node:test\";\nimport assert from \"node:assert/strict\";\n\nimport {\n  addItem, applyCoupon, createCart, totals,\n} from \"../public/cart.js\";\n\ntest(\"applying the same coupon twice does not stack discount\", () => {\n  const cart = addItem(createCart(), \"tee\"); // $19.99\n  addItem(cart, \"mug\"); // $12.50 -> subtotal $32.49\n\n  // First apply\n  const result1 = applyCoupon(cart, \"SAVE10\");\n  assert.equal(result1.ok, true);\n  // Discount should be 10% of 3249 cents = 324.9 -> rounded? In cart.js they use Math.round((subtotal * value)/100)\n  // 3249 * 10 / 100 = 324.9 -> Math.round => 325 cents ($3.25)\n  assert.equal(totals(cart).discount, 325);\n\n  // Second apply of same coupon\n  const result2 = applyCoupon(cart, \"SAVE10\");\n  assert.equal(result2.ok, true);\n  // Message indicates already applied\n  assert.equal(result2.message, \"Coupon SAVE10 is already applied.\");\n  // Discount should remain the same\n  assert.equal(totals(cart).discount, 325);\n});\n"
+        },
+        "diff": "--- a/public/cart.js\n+++ b/public/cart.js\n@@ -58,6 +58,9 @@\n   if (!COUPONS[code]) {\n     return { ok: false, message: `\"${rawCode}\" is not a valid coupon code.` };\n   }\n+  if (cart.coupons.includes(code)) {\n+    return { ok: true, message: `Coupon ${code} is already applied.` };\n+  }\n   cart.coupons.push(code);\n   return { ok: true, message: `Coupon ${code} applied: ${COUPONS[code].label}.` };\n }\n\n--- /dev/null\n+++ b/test/cart-duplicate-coupon.test.js\n@@ -0,0 +1,27 @@\n+// Test for duplicate coupon application not stacking discount\n+import { test } from \"node:test\";\n+import assert from \"node:assert/strict\";\n+\n+import {\n+  addItem, applyCoupon, createCart, totals,\n+} from \"../public/cart.js\";\n+\n+test(\"applying the same coupon twice does not stack discount\", () => {\n+  const cart = addItem(createCart(), \"tee\"); // $19.99\n+  addItem(cart, \"mug\"); // $12.50 -> subtotal $32.49\n+\n+  // First apply\n+  const result1 = applyCoupon(cart, \"SAVE10\");\n+  assert.equal(result1.ok, true);\n+  // Discount should be 10% of 3249 cents = 324.9 -> rounded? In cart.js they use Math.round((subtotal * value)/100)\n+  // 3249 * 10 / 100 = 324.9 -> Math.round => 325 cents ($3.25)\n+  assert.equal(totals(cart).discount, 325);\n+\n+  // Second apply of same coupon\n+  const result2 = applyCoupon(cart, \"SAVE10\");\n+  assert.equal(result2.ok, true);\n+  // Message indicates already applied\n+  assert.equal(result2.message, \"Coupon SAVE10 is already applied.\");\n+  // Discount should remain the same\n+  assert.equal(totals(cart).discount, 325);\n+});\n",
+        "research": []
+      },
+      "ts": 1792722872.4167533
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 21,
+      "stage": "research",
+      "status": "skipped",
+      "message": "The agent did not need outside knowledge for this bug",
+      "model": null,
+      "tokens": 0,
+      "latency_s": 0.0,
+      "payload": {},
+      "ts": 1792722872.4167862
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 22,
+      "stage": "verify",
+      "status": "started",
+      "message": "Re-running the regression test and the existing suite",
+      "model": null,
+      "tokens": 0,
+      "latency_s": 0.0,
+      "payload": {},
+      "ts": 1792722872.4168127
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 23,
+      "stage": "verify",
+      "status": "done",
+      "message": "GREEN: regression test and existing suite pass",
+      "model": null,
+      "tokens": 0,
+      "latency_s": 6.15,
+      "payload": {
+        "summary": "Regression test: PASSED\n\nExisting test suite (`npm test`): PASSED\n> shoplite@1.0.0 test\n> node --test test/*.test.js\n\n\u2714 applying the same coupon twice does not stack discount (1.7913ms)\n\u2714 adding an item updates the subtotal (1.3879ms)\n\u2714 adding the same product twice merges the line (0.3447ms)\n\u2714 increasing quantity updates the subtotal (0.42ms)\n\u2714 flat shipping applies below the free-shipping threshold (0.2471ms)\n\u2714 SAVE10 takes 10% off the subtotal (0.3432ms)\n\u2714 unknown coupon codes are rejected (0.2685ms)\n\u2714 money is formatted with two decimals (0.2452ms)\n\u2139 tests 8\n\u2139 suites 0\n\u2139 pass 8\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 153.4798",
+        "green": true,
+        "diff": "--- a/public/cart.js\n+++ b/public/cart.js\n@@ -58,6 +58,9 @@\n   if (!COUPONS[code]) {\n     return { ok: false, message: `\"${rawCode}\" is not a valid coupon code.` };\n   }\n+  if (cart.coupons.includes(code)) {\n+    return { ok: true, message: `Coupon ${code} is already applied.` };\n+  }\n   cart.coupons.push(code);\n   return { ok: true, message: `Coupon ${code} applied: ${COUPONS[code].label}.` };\n }\n\n--- /dev/null\n+++ b/test/cart-duplicate-coupon.test.js\n@@ -0,0 +1,27 @@\n+// Test for duplicate coupon application not stacking discount\n+import { test } from \"node:test\";\n+import assert from \"node:assert/strict\";\n+\n+import {\n+  addItem, applyCoupon, createCart, totals,\n+} from \"../public/cart.js\";\n+\n+test(\"applying the same coupon twice does not stack discount\", () => {\n+  const cart = addItem(createCart(), \"tee\"); // $19.99\n+  addItem(cart, \"mug\"); // $12.50 -> subtotal $32.49\n+\n+  // First apply\n+  const result1 = applyCoupon(cart, \"SAVE10\");\n+  assert.equal(result1.ok, true);\n+  // Discount should be 10% of 3249 cents = 324.9 -> rounded? In cart.js they use Math.round((subtotal * value)/100)\n+  // 3249 * 10 / 100 = 324.9 -> Math.round => 325 cents ($3.25)\n+  assert.equal(totals(cart).discount, 325);\n+\n+  // Second apply of same coupon\n+  const result2 = applyCoupon(cart, \"SAVE10\");\n+  assert.equal(result2.ok, true);\n+  // Message indicates already applied\n+  assert.equal(result2.message, \"Coupon SAVE10 is already applied.\");\n+  // Discount should remain the same\n+  assert.equal(totals(cart).discount, 325);\n+});\n"
+      },
+      "ts": 1792722878.568821
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 24,
+      "stage": "ship",
+      "status": "started",
+      "message": "Opening a pull request on princemittalr/shoplite",
+      "model": null,
+      "tokens": 0,
+      "latency_s": 0.0,
+      "payload": {},
+      "ts": 1792722878.5688524
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 25,
+      "stage": "ship",
+      "status": "done",
+      "message": "PR #3 opened",
+      "model": null,
+      "tokens": 0,
+      "latency_s": 15.25,
+      "payload": {
+        "number": 3,
+        "url": "https://github.com/princemittalr/shoplite/pull/3",
+        "branch": "repro/coupon-code-applies-discount-mul-20261023-080440",
+        "files": [
+          "e2e/test_coupon_code_applies_discount_multiple_ti.py",
+          "public/cart.js",
+          "test/cart-duplicate-coupon.test.js"
+        ]
+      },
+      "ts": 1792722893.8196914
+    },
+    {
+      "run_id": "fd427d81bf3c",
+      "seq": 26,
+      "stage": "pipeline",
+      "status": "done",
+      "message": "Bug fixed and verified - PR opened",
+      "model": null,
+      "tokens": 65341,
+      "latency_s": 0.0,
+      "payload": {
+        "pr_url": "https://github.com/princemittalr/shoplite/pull/3",
+        "prompt_tokens": 60865,
+        "completion_tokens": 4476,
+        "cost_usd": null
+      },
+      "ts": 1792722893.8850803
+    }
+  ],
+  "usage": {
+    "calls": [
+      {
+        "stage": "triage",
+        "model": "nvidia/Nemotron-3_5-Lightning",
+        "prompt_tokens": 787,
+        "completion_tokens": 237,
+        "latency_s": 1.87,
+        "cost_usd": null
+      },
+      {
+        "stage": "reproduce#1",
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "prompt_tokens": 3366,
+        "completion_tokens": 1786,
+        "latency_s": 10.74,
+        "cost_usd": null
+      },
+      {
+        "stage": "fix#1",
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "prompt_tokens": 2519,
+        "completion_tokens": 36,
+        "latency_s": 1.45,
+        "cost_usd": null
+      },
+      {
+        "stage": "fix#2",
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "prompt_tokens": 2633,
+        "completion_tokens": 50,
+        "latency_s": 0.99,
+        "cost_usd": null
+      },
+      {
+        "stage": "fix#3",
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "prompt_tokens": 3889,
+        "completion_tokens": 106,
+        "latency_s": 1.43,
+        "cost_usd": null
+      },
+      {
+        "stage": "fix#4",
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "prompt_tokens": 5027,
+        "completion_tokens": 309,
+        "latency_s": 3.44,
+        "cost_usd": null
+      },
+      {
+        "stage": "fix#5",
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "prompt_tokens": 5075,
+        "completion_tokens": 585,
+        "latency_s": 7.6,
+        "cost_usd": null
+      },
+      {
+        "stage": "fix#6",
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "prompt_tokens": 5275,
+        "completion_tokens": 444,
+        "latency_s": 2.65,
+        "cost_usd": null
+      },
+      {
+        "stage": "fix#7",
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "prompt_tokens": 5570,
+        "completion_tokens": 27,
+        "latency_s": 1.27,
+        "cost_usd": null
+      },
+      {
+        "stage": "fix#8",
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "prompt_tokens": 5842,
+        "completion_tokens": 97,
+        "latency_s": 2.06,
+        "cost_usd": null
+      },
+      {
+        "stage": "fix#9",
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "prompt_tokens": 6603,
+        "completion_tokens": 470,
+        "latency_s": 3.62,
+        "cost_usd": null
+      },
+      {
+        "stage": "fix#10",
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "prompt_tokens": 6993,
+        "completion_tokens": 123,
+        "latency_s": 1.46,
+        "cost_usd": null
+      },
+      {
+        "stage": "fix#11",
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "prompt_tokens": 7286,
+        "completion_tokens": 206,
+        "latency_s": 2.99,
+        "cost_usd": null
+      }
+    ],
+    "prompt_tokens": 60865,
+    "completion_tokens": 4476,
+    "cost_usd": null
+  },
+  "like_reference": true,
+  "note": "got {'subtotal': 3249, 'discount': 325, 'shipping': 499, 'total': 3423}, reference {'subtotal': 3249, 'discount': 325, 'shipping': 499, 'total': 3423}"
+}
