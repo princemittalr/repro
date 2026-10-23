@@ -70,6 +70,27 @@ class PagesTest(unittest.TestCase):
         self.assertNotIn("app/usage.py", app_js)
         self.assertNotIn("✕", app_js)  # a red test in REPRODUCE is "bug caught", not an error cross
 
+    def test_one_h1_on_the_app_page(self):
+        # The start and run screens share a page; app.js keeps only the visible screen's heading an <h1>.
+        self.assertEqual(len(re.findall(r"<h1\b", self.pages["app.html"])), 1)
+        self.assertIn("function setHeading", (STATIC_DIR / "js" / "app.js").read_text(encoding="utf-8"))
+
+    def test_nav_links_match_on_both_pages(self):
+        nav = lambda html: re.findall(r'class="nav-link" href="([^"]+)"', html)
+        self.assertEqual(nav(self.pages["app.html"]), nav(self.pages["landing.html"]))
+
+    def test_only_semantic_colour_tokens(self):
+        # Raw palette classes don't compile (tailwind.config.js defines only tokens), so they'd silently vanish.
+        raw = re.compile(r"\b(?:bg|text|border|from|via|to|ring|shadow|fill|stroke)-(?:slate|gray|zinc|emerald|green|rose|red|sky|blue|amber|yellow)-\d")
+        for path in [*STATIC_DIR.glob("*.html"), *(STATIC_DIR / "js").glob("*.js")]:
+            self.assertIsNone(raw.search(path.read_text(encoding="utf-8")), path.name)
+
+    def test_feature_frames_are_real_keyframes(self):
+        for src in re.findall(r'src="/static/(img/frame-coupon-[^"]+)"', self.pages["landing.html"]):
+            self.assertTrue((STATIC_DIR / src).exists(), src)
+        demo = json.loads((DEMO_DIR / "coupon.json").read_text(encoding="utf-8"))
+        self.assertIn("11.94", json.dumps(demo))
+
     def test_reduced_motion_is_handled(self):
         css = (STATIC_DIR / "css" / "site.src.css").read_text(encoding="utf-8")
         self.assertIn("prefers-reduced-motion: reduce", css)
@@ -153,3 +174,23 @@ class ReplayClockTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ColdStartTest(unittest.TestCase):
+    def test_public_get_endpoints_allow_cross_origin_reads(self):
+        resp = client.get("/api/health", headers={"Origin": "https://repro.example.com"})
+        self.assertEqual(resp.headers.get("access-control-allow-origin"), "*")
+        pre = client.options("/api/runs", headers={"Origin": "https://repro.example.com", "Access-Control-Request-Method": "POST"})
+        self.assertEqual(pre.status_code, 400)  # only GET is opened up: no cross-origin run starts
+
+    def test_static_build_points_the_tool_at_the_api(self):
+        from scripts.build_static import build
+        with tempfile.TemporaryDirectory() as tmp:
+            out = build("https://api.example.com", "https://repro.example.com", Path(tmp) / "site")
+            html = (out / "index.html").read_text(encoding="utf-8")
+            self.assertIn('window.REPRO_API = "https://api.example.com"', html)
+            self.assertIn('href="https://api.example.com/app?sample=coupon', html)
+            self.assertNotRegex(html, r'href="/app')
+            self.assertIn('content="https://repro.example.com/static/img/og.png"', html)
+            self.assertTrue((out / "media" / "samples" / "coupon.mp4").exists())
+            self.assertTrue((out / "static" / "css" / "site.css").exists())

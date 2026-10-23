@@ -25,6 +25,7 @@ from typing import Literal
 
 from fastapi import FastAPI, File, Form, Header, HTTPException, Query, Request, UploadFile
 from fastapi.concurrency import run_in_threadpool
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -53,6 +54,9 @@ SAMPLES = {
 runs = RunStore()
 budget.enforced = True  # the public web server spends real credit: keep it inside the demo budget
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+# The landing page can also be served as a static site (scripts/build_static.py) on a host with no
+# cold start. It reads /api/health and /api/recent cross-origin; nothing else is opened up.
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET"], allow_credentials=False)
 
 
 def _is_set(value: str) -> bool:

@@ -25,24 +25,21 @@
   <link rel="stylesheet" href="/static/css/site.css">
   <script>document.documentElement.classList.add("js");</script>
 </head>
-<body class="bg-slate-950 font-sans text-slate-200 antialiased">
-  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-emerald-500 focus:px-3 focus:py-2 focus:text-slate-950">Skip to content</a>
+<body class="bg-bg font-sans text-ink-2 antialiased" data-api="">
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-fix focus:px-3 focus:py-2 focus:text-bg">Skip to content</a>
 
-  <!-- 1. Sticky nav: transparent at the top, blurs after 40px of scroll -->
+  <!-- 1. Nav (the same nav is used on /app): transparent at the top, blurs after 40px of scroll -->
   <header id="nav" class="site-nav fixed inset-x-0 top-0 z-40">
     <div class="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
       <a href="/" class="flex items-center gap-2.5" aria-label="Repro home">
-        <span class="grid h-8 w-8 place-items-center rounded-lg bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/25">
-          <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-        </span>
-        <span class="text-lg font-semibold tracking-tight text-white">Repro</span>
+        <span class="logo-mark"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+        <span class="text-lg font-semibold tracking-tight text-ink">Repro</span>
       </a>
       <nav class="ml-4 hidden items-center gap-1 md:flex" aria-label="Main">
-        <a class="nav-link" href="#how">How it works</a>
-        <a class="nav-link" href="#features">Features</a>
-        <a class="nav-link" href="#proof">Proof</a>
-        <a class="nav-link inline-flex items-center gap-1.5" href="https://github.com/princemittalr/repro" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 00-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 015.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.7 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0012 .5z"/></svg>GitHub</a>
+        <a class="nav-link" href="/#how">How it works</a>
+        <a class="nav-link" href="/#features">Features</a>
+        <a class="nav-link" href="/#proof">Proof</a>
+        <a class="nav-link" href="https://github.com/princemittalr/repro" target="_blank" rel="noopener">GitHub</a>
       </nav>
       <div class="ml-auto flex items-center gap-2">
         <a href="/app" class="btn btn-primary magnetic" data-magnetic>Try it free</a>
@@ -51,11 +48,11 @@
         </button>
       </div>
     </div>
-    <div id="mobile-menu" class="mobile-menu border-b border-slate-800 bg-slate-950 px-4 pb-4 shadow-2xl shadow-black/60" hidden>
+    <div id="mobile-menu" class="mobile-menu border-b border-line bg-bg px-4 pb-4 shadow-2xl shadow-black/60" hidden>
       <nav class="grid gap-1" aria-label="Mobile">
-        <a class="nav-link py-2.5" href="#how">How it works</a>
-        <a class="nav-link py-2.5" href="#features">Features</a>
-        <a class="nav-link py-2.5" href="#proof">Proof</a>
+        <a class="nav-link py-2.5" href="/#how">How it works</a>
+        <a class="nav-link py-2.5" href="/#features">Features</a>
+        <a class="nav-link py-2.5" href="/#proof">Proof</a>
         <a class="nav-link py-2.5" href="https://github.com/princemittalr/repro" target="_blank" rel="noopener">GitHub</a>
       </nav>
     </div>
@@ -63,70 +60,70 @@
 
   <main id="main">
     <!-- 2. Hero -->
-    <section id="top" class="relative overflow-hidden pb-16 pt-28 sm:pt-36 lg:pb-24">
+    <section id="top" class="relative overflow-hidden pb-14 pt-24 sm:pt-32 lg:pb-20">
       <div id="grid" class="grid-bg" aria-hidden="true"></div>
-      <div class="glow -left-40 top-10 h-96 w-96 bg-emerald-500/10" aria-hidden="true"></div>
-      <div class="glow -right-24 top-40 h-80 w-80 bg-rose-500/10" aria-hidden="true"></div>
+      <div class="glow glow-fix -left-40 top-10 h-96 w-96" aria-hidden="true"></div>
+      <div class="glow glow-bug -right-24 top-40 h-80 w-80" aria-hidden="true"></div>
 
-      <div class="relative mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:gap-10">
+      <div class="relative mx-auto grid max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-12">
         <div class="lg:col-span-6">
-          <p class="hero-after inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/60 px-3 py-1 text-xs text-slate-300" style="--i:0">
+          <p class="hero-after inline-flex items-center gap-2 rounded-full border border-line bg-surface-1 px-3 py-1 text-xs text-ink-2" style="--i:0">
             <span class="pulse-dot" aria-hidden="true"></span> Bug video in. Verified pull request out.
           </p>
-          <h1 class="hero-title mt-6 text-white" aria-label="Show it the bug. It ships the fix.">
+          <h1 class="hero-title mt-6 text-ink" aria-label="Show it the bug. It ships the fix.">
             <span aria-hidden="true">
               <span class="hero-word" style="--i:0">Show</span> <span class="hero-word" style="--i:1">it</span> <span class="hero-word" style="--i:2">the</span><br class="sm:hidden">
-              <span class="hero-word" style="--i:3"><span id="rotator" class="rotator font-mono" style="letter-spacing:-0.06em"><span>bug</span></span>.</span><br>
+              <span class="hero-word" style="--i:3"><span id="rotator" class="rotator font-mono" style="letter-spacing:-0.06em"><span>bug<i>.</i></span></span></span><br>
               <span class="hero-word" style="--i:4">It</span> <span class="hero-word" style="--i:5">ships</span> <span class="hero-word" style="--i:6">the</span> <span class="hero-word" style="--i:7"><span id="fix-word" class="fix-word">fix</span>.</span>
             </span>
           </h1>
-          <p class="hero-after mt-6 max-w-xl text-lg leading-relaxed text-slate-300 sm:text-xl" style="--i:8">
+          <p class="hero-after mt-6 max-w-xl text-lg leading-relaxed text-ink-2 sm:text-xl" style="--i:8">
             Drop in a screen recording of a bug. Repro writes a test that fails on it, fixes the code until that test passes,
             and opens a pull request with the proof. No human writes any of it.
           </p>
-          <div class="hero-after mt-8 flex flex-wrap items-center gap-3" style="--i:9">
+          <div class="hero-after mt-8 flex flex-nowrap items-center gap-2.5 sm:gap-3" style="--i:9">
             <a href="/app?sample=coupon&amp;mode=replay" class="btn btn-primary btn-lg magnetic" data-magnetic>
               Try a sample bug
               <svg viewBox="0 0 24 24" class="arrow h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </a>
-            <a href="/app" class="btn-ghost btn-lg">Upload a recording</a>
+            <a href="/app" class="btn-ghost btn-lg"><span class="sm:hidden">Upload video</span><span class="hidden sm:inline">Upload a recording</span></a>
           </div>
-          <p class="hero-after mt-4 text-sm text-slate-400" style="--i:10">Free, instant replay of a real recorded run. No sign-up.</p>
+          <p class="hero-after mt-4 text-sm text-muted" style="--i:10">Free, instant replay of a real recorded run. No sign-up.</p>
         </div>
 
         <!-- Product card: the recorded "Coupon stacks" run, replayed as a mini timeline -->
         <div class="hero-card-wrap lg:col-span-6">
-          <figure class="hero-card overflow-hidden rounded-2xl bg-slate-900/80 backdrop-blur" aria-label="Replay of a real Repro run on the Coupon stacks bug">
-            <div class="flex items-center gap-2 border-b border-slate-800 px-4 py-2.5">
-              <span class="h-2.5 w-2.5 rounded-full bg-slate-700"></span><span class="h-2.5 w-2.5 rounded-full bg-slate-700"></span><span class="h-2.5 w-2.5 rounded-full bg-slate-700"></span>
-              <span class="ml-2 truncate font-mono text-xs text-slate-400">shoplite-coupon.mp4</span>
+          <figure class="hero-card overflow-hidden rounded-2xl" aria-label="Replay of a real Repro run on the Coupon stacks bug">
+            <div class="flex items-center gap-2 border-b border-line px-4 py-2.5">
+              <span class="h-2.5 w-2.5 rounded-full bg-line-strong"></span><span class="h-2.5 w-2.5 rounded-full bg-line-strong"></span><span class="h-2.5 w-2.5 rounded-full bg-line-strong"></span>
+              <span class="ml-2 truncate font-mono text-xs text-muted">shoplite-coupon.mp4</span>
               <span class="chip chip-amber ml-auto">Replay of a real run</span>
             </div>
             <div class="grid sm:grid-cols-5">
-              <div class="relative overflow-hidden bg-slate-950 sm:col-span-2 sm:border-r sm:border-slate-800">
-                <video id="hero-video" class="aspect-video h-full w-full object-cover object-right sm:aspect-auto sm:origin-[88%_45%] sm:scale-[1.3]" src="/media/samples/coupon.mp4"
+              <div class="relative overflow-hidden bg-bg sm:col-span-2 sm:border-r sm:border-line">
+                <video id="hero-video" class="dimmed-media aspect-video h-full w-full object-cover object-right sm:aspect-auto sm:origin-[88%_45%] sm:scale-[1.3]" src="/media/samples/coupon.mp4"
                        poster="/static/img/poster-coupon.jpg" muted loop playsinline preload="none" aria-label="Screen recording: applying SAVE10 twice doubles the discount"></video>
-                <span class="absolute bottom-2 left-2 chip border-rose-500/40 bg-slate-950/85 text-rose-200">Discount −$3.25 → −$6.50</span>
+                <span class="chip chip-red absolute bottom-2 left-2 bg-bg">✕ Discount −$3.25 → −$6.50</span>
               </div>
               <ol id="hero-steps" class="px-4 py-3 text-sm sm:col-span-3" aria-label="Agent timeline">
                 <li class="mini-step" data-state="done" data-final="done"><span class="mini-dot"><span class="mini-num">1</span><span class="mini-icon mini-spin spinner"></span><svg class="mini-icon mini-check h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
-                  <span class="min-w-0"><span class="font-medium text-white">Perceive</span> <span class="mini-msg text-slate-400">6 repro steps from the video</span></span><span class="mini-time font-mono text-xs text-slate-500"></span></li>
+                  <span class="min-w-0"><span class="font-medium text-ink">Perceive</span> <span class="mini-msg text-ink-2">6 repro steps from the video</span></span><span class="mini-time font-mono text-xs text-muted"></span></li>
                 <li class="mini-step" data-state="done" data-final="done"><span class="mini-dot"><span class="mini-num">2</span><span class="mini-icon mini-spin spinner"></span><svg class="mini-icon mini-check h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
-                  <span class="min-w-0"><span class="font-medium text-white">Triage</span> <span class="mini-msg text-slate-400">start with <code class="text-sky-300">cart.js</code></span></span><span class="mini-time font-mono text-xs text-slate-500">2s</span></li>
+                  <span class="min-w-0"><span class="font-medium text-ink">Triage</span> <span class="mini-msg text-ink-2">start with <code class="text-ident">cart.js</code></span></span><span class="mini-time font-mono text-xs text-muted">2s</span></li>
                 <li class="mini-step" data-state="caught" data-final="caught"><span class="mini-dot"><span class="mini-num">3</span><span class="mini-icon mini-spin spinner"></span><svg class="mini-icon mini-bug h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M8 8a4 4 0 118 0v1H8V8z"/><rect x="7" y="9" width="10" height="10" rx="5"/><path d="M3 13h4M17 13h4"/></svg></span>
-                  <span class="min-w-0"><span class="font-medium text-white">Reproduce</span> <span class="mini-msg text-rose-300">bug caught: red test</span></span><span class="mini-time font-mono text-xs text-slate-500">23s</span></li>
+                  <span class="min-w-0"><span class="font-medium text-ink">Reproduce</span> <span class="mini-msg text-bug-fg">bug caught: red test</span></span><span class="mini-time font-mono text-xs text-muted">23s</span></li>
                 <li class="mini-step" data-state="done" data-final="done"><span class="mini-dot"><span class="mini-num">4</span><span class="mini-icon mini-spin spinner"></span><svg class="mini-icon mini-check h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
-                  <span class="min-w-0"><span class="font-medium text-white">Fix</span> <span class="mini-msg text-slate-400">patched <code class="text-sky-300">applyCoupon</code>, 12 tool calls</span></span><span class="mini-time font-mono text-xs text-slate-500">43s</span></li>
+                  <span class="min-w-0"><span class="font-medium text-ink">Fix</span> <span class="mini-msg text-ink-2">patched <code class="text-ident">applyCoupon</code>, 12 tool calls</span></span><span class="mini-time font-mono text-xs text-muted">43s</span></li>
                 <li class="mini-step" data-state="done" data-final="done"><span class="mini-dot"><span class="mini-num">5</span><span class="mini-icon mini-spin spinner"></span><svg class="mini-icon mini-check h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
-                  <span class="min-w-0"><span class="font-medium text-white">Verify</span> <span class="mini-msg text-emerald-300">green: 8/8 tests pass</span></span><span class="mini-time font-mono text-xs text-slate-500">6s</span></li>
-                <li class="mini-step" data-state="done" data-final="done"><span class="mini-dot"><span class="mini-num">6</span><span class="mini-icon mini-spin spinner"></span><svg class="mini-icon mini-check h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
-                  <span class="min-w-0"><span class="font-medium text-white">Ship</span> <span class="mini-msg text-slate-400">pull request #3 opened</span></span><span class="mini-time font-mono text-xs text-slate-500">15s</span></li>
+                  <span class="min-w-0"><span class="font-medium text-ink">Verify</span> <span class="mini-msg text-fix-fg">green: 8/8 tests pass</span></span><span class="mini-time font-mono text-xs text-muted">6s</span></li>
+                <li class="mini-step final" data-state="done" data-final="done"><span class="mini-dot"><span class="mini-num">6</span><span class="mini-icon mini-spin spinner"></span><svg class="mini-icon mini-check h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+                  <span class="min-w-0"><span class="font-medium text-ink">Ship</span> <span class="mini-msg text-ink-2">pull request #3 opened</span></span><span class="mini-time font-mono text-xs text-muted">15s</span></li>
               </ol>
             </div>
-            <figcaption id="hero-result" class="hero-result flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-slate-800 bg-emerald-500/[0.06] px-4 py-2.5 text-xs">
-              <span class="inline-flex items-center gap-1.5 font-medium text-emerald-300"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>Fixed and verified in 1:31</span>
-              <span class="text-slate-400">65,341 tokens</span>
-              <a href="https://github.com/princemittalr/shoplite/pull/3" target="_blank" rel="noopener" class="ml-auto text-emerald-300 hover:underline">See PR #3 on GitHub ↗</a>
+            <figcaption id="hero-result" class="hero-result flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-line bg-surface-2 px-4 py-2.5 text-xs">
+              <span class="inline-flex items-center gap-1.5 font-medium text-fix-fg">✓ Fixed and verified in 1:31</span>
+              <span class="text-muted">65,341 tokens</span>
+              <a href="https://github.com/princemittalr/shoplite/pull/3" target="_blank" rel="noopener" class="ml-auto text-ink hover:underline">See PR #3 on GitHub ↗</a>
             </figcaption>
           </figure>
         </div>
@@ -134,58 +131,62 @@
     </section>
 
     <!-- 3. Real-run ticker -->
-    <section aria-label="Recent real runs" class="border-y border-slate-800/80 bg-slate-900/30">
+    <section aria-label="Recent real runs" class="border-y border-line bg-surface-1">
       <div class="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
-        <span class="flex-none font-mono text-[11px] uppercase tracking-widest text-slate-400">Real runs</span>
+        <span class="flex-none font-mono text-[11px] uppercase tracking-widest text-muted">Real runs</span>
         <div id="marquee" class="marquee min-w-0 flex-1 overflow-hidden">
-          <ul id="ticker" class="marquee-track gap-8 text-sm text-slate-300">
-            <li class="flex flex-none items-center gap-2"><span class="text-emerald-400">✓</span>Coupon stacks <span class="text-slate-500">·</span> fixed and verified <span class="text-slate-500">·</span> <a class="text-emerald-300 hover:underline" href="https://github.com/princemittalr/shoplite/pull/3" target="_blank" rel="noopener">PR #3</a> <span class="text-slate-500">·</span> 1:31 <span class="chip">recorded run</span></li>
-            <li class="flex flex-none items-center gap-2"><span class="text-emerald-400">✓</span>Remove keeps the price <span class="text-slate-500">·</span> fixed and verified <span class="text-slate-500">·</span> 9/9 tests <span class="text-slate-500">·</span> 1:02 <span class="chip">recorded run</span></li>
-            <li class="flex flex-none items-center gap-2"><span class="text-sky-400">◆</span>Perception eval <span class="text-slate-500">·</span> 100% step recall <span class="text-slate-500">·</span> 6/6 key facts</li>
-            <li class="flex flex-none items-center gap-2"><span class="text-sky-400">◆</span>Reproduce eval <span class="text-slate-500">·</span> red on the buggy app for 3 of 3 bugs</li>
-            <li class="flex flex-none items-center gap-2"><span class="text-sky-400">◆</span>Pipeline eval <span class="text-slate-500">·</span> 2 of 2 fixes behave like the reference fix</li>
+          <ul id="ticker" class="marquee-track gap-8 text-sm text-ink-2">
+            <li class="flex flex-none items-center gap-2"><span class="text-fix-fg">✓</span>Coupon stacks <span class="text-muted">·</span> fixed and verified <span class="text-muted">·</span> <a class="text-ink underline decoration-line-strong underline-offset-2 hover:decoration-ink" href="https://github.com/princemittalr/shoplite/pull/3" target="_blank" rel="noopener">PR #3</a> <span class="text-muted">·</span> 8/8 tests <span class="text-muted">·</span> 1:31 <span class="chip chip-amber">recorded run</span></li>
+            <li class="flex flex-none items-center gap-2"><span class="text-fix-fg">✓</span>Remove keeps the price <span class="text-muted">·</span> fixed and verified <span class="text-muted">·</span> 9/9 tests <span class="text-muted">·</span> 1:02 <span class="chip chip-amber">recorded run</span></li>
+            <li class="flex flex-none items-center gap-2"><span class="text-ident">◆</span>Perception eval <span class="text-muted">·</span> 100% step recall <span class="text-muted">·</span> 6/6 key facts</li>
+            <li class="flex flex-none items-center gap-2"><span class="text-ident">◆</span>Reproduce eval <span class="text-muted">·</span> red on the buggy app for 3 of 3 bugs</li>
+            <li class="flex flex-none items-center gap-2"><span class="text-ident">◆</span>Pipeline eval <span class="text-muted">·</span> 2 of 2 fixes behave like the reference fix</li>
           </ul>
         </div>
       </div>
     </section>
 
     <!-- 4. The problem: before / after -->
-    <section id="problem" class="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32">
-      <div class="max-w-2xl" data-reveal>
-        <p class="eyebrow">The problem</p>
-        <h2 class="mt-3 text-4xl font-semibold tracking-tight text-white sm:text-5xl">Bug reports are videos.<br>Fixes need tests.</h2>
-        <p class="mt-4 text-lg text-slate-400">"It does this, see attached." Turning that clip into a fix means watching it, working out the exact steps, reproducing it, writing a test, finding the root cause and proving the fix. Usually across days of back-and-forth.</p>
+    <section id="problem" class="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-12">
+      <div class="lg:col-span-4" data-reveal>
+        <p class="eyebrow eyebrow-bug">The problem</p>
+        <h2 class="mt-3 text-4xl font-semibold tracking-tight text-ink sm:text-5xl">Bug reports are videos. Fixes need tests.</h2>
+        <p class="mt-4 text-lg text-ink-2">"It does this, see attached." Turning that clip into a fix means watching it, working out the exact steps, reproducing it, writing a test, finding the root cause and proving the fix.</p>
+        <p class="mt-4 hidden text-sm text-muted md:block">Drag the handle to compare.</p>
       </div>
 
-      <div id="ba" class="ba mt-12 rounded-2xl border border-slate-800" style="--pos:50%" data-reveal>
+      <div id="ba" class="ba rounded-2xl border border-line lg:col-span-8" style="--pos:50%" data-reveal>
         <!-- Before -->
-        <div class="grid min-h-[22rem] gap-6 bg-slate-900/60 p-6 sm:p-10 md:grid-cols-2">
+        <div class="ba-before grid min-h-[21rem] gap-6 p-6 sm:p-8 md:grid-cols-2">
           <div>
-            <span class="chip chip-off">The usual loop</span>
-            <ol class="mt-6 space-y-4 text-sm">
-              <li class="flex gap-3"><span class="mt-1 h-2 w-2 flex-none rounded-full bg-slate-600"></span><span><span class="text-slate-200">Ticket:</span> <span class="text-slate-400">"Coupon applies twice?" + bug.mp4</span></span></li>
-              <li class="flex gap-3"><span class="mt-1 h-2 w-2 flex-none rounded-full bg-slate-600"></span><span><span class="text-slate-200">Dev:</span> <span class="text-slate-400">"Can't reproduce. What were the exact steps?"</span></span></li>
-              <li class="flex gap-3"><span class="mt-1 h-2 w-2 flex-none rounded-full bg-slate-600"></span><span><span class="text-slate-200">QA:</span> <span class="text-slate-400">re-records, adds notes, waits</span></span></li>
-              <li class="flex gap-3"><span class="mt-1 h-2 w-2 flex-none rounded-full bg-slate-600"></span><span><span class="text-slate-200">Dev:</span> <span class="text-slate-400">reproduces, digs for the root cause, maybe writes a test</span></span></li>
-              <li class="flex gap-3"><span class="mt-1 h-2 w-2 flex-none rounded-full bg-slate-600"></span><span><span class="text-slate-200">Review:</span> <span class="text-slate-400">"How do we know it's fixed?"</span></span></li>
+            <span class="chip chip-red">✕ The usual loop</span>
+            <ol class="mt-6 space-y-3.5 text-sm">
+              <li class="flex gap-3"><span class="glyph glyph-off">•</span><span><span class="text-ink">Ticket:</span> "Coupon applies twice?" + bug.mp4</span></li>
+              <li class="flex gap-3"><span class="glyph glyph-off">•</span><span><span class="text-ink">Dev:</span> "Can't reproduce. What were the exact steps?"</span></li>
+              <li class="flex gap-3"><span class="glyph glyph-off">•</span><span><span class="text-ink">QA:</span> re-records, adds notes, waits</span></li>
+              <li class="flex gap-3"><span class="glyph glyph-off">•</span><span><span class="text-ink">Dev:</span> reproduces, digs for the root cause, maybe writes a test</span></li>
+              <li class="flex gap-3"><span class="glyph glyph-off">•</span><span><span class="text-ink">Review:</span> "How do we know it's fixed?"</span></li>
             </ol>
           </div>
-          <div class="flex flex-col items-start justify-end gap-2 md:items-end"><p class="text-5xl font-semibold tracking-tight text-slate-500 sm:text-6xl">Days.</p><p class="text-xs text-slate-500">Of back-and-forth, typically</p></div>
+          <div class="flex flex-col items-start justify-end gap-1 md:items-end md:text-right">
+            <p class="text-5xl font-semibold tracking-tight text-bug-fg">Days.</p>
+            <p class="text-xs text-muted">Of back-and-forth, typically</p>
+          </div>
         </div>
         <!-- After: mirrored, so at 50% the usual loop (left) faces the Repro run (right) -->
-        <div class="ba-after grid gap-6 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950 p-6 sm:p-10 md:grid-cols-2">
-          <div class="order-2 flex flex-col items-start justify-end gap-2 md:order-1">
-            <p class="text-5xl font-semibold tracking-tight text-emerald-300 sm:text-6xl">91 seconds.</p>
-            <p class="text-xs text-slate-400">Recorded run, repro report to pull request</p>
+        <div class="ba-after grid gap-6 p-6 sm:p-8 md:grid-cols-2">
+          <div class="order-2 flex flex-col items-start justify-end gap-1 md:order-1">
+            <p class="text-5xl font-semibold tracking-tight text-fix-fg">91 seconds.</p>
+            <p class="text-xs text-muted">Recorded run, repro report to pull request</p>
           </div>
           <div class="order-1 md:order-2">
-            <span class="chip chip-ok">With Repro</span>
-            <ol class="mt-6 space-y-4 text-sm">
-              <li class="flex gap-3"><span class="mt-1 h-2 w-2 flex-none rounded-full bg-slate-400"></span><span><span class="font-mono text-white">0:00</span> <span class="text-slate-300">shoplite-coupon.mp4 goes in</span></span></li>
-              <li class="flex gap-3"><span class="mt-1 h-2 w-2 flex-none rounded-full bg-rose-500"></span><span><span class="font-mono text-white">0:27</span> <span class="text-slate-300">Playwright test written. It fails: bug caught</span></span></li>
-              <li class="flex gap-3"><span class="mt-1 h-2 w-2 flex-none rounded-full bg-sky-400"></span><span><span class="font-mono text-white">1:10</span> <span class="text-slate-300">root cause found, <code class="text-sky-300">applyCoupon</code> patched</span></span></li>
-              <li class="flex gap-3"><span class="mt-1 h-2 w-2 flex-none rounded-full bg-emerald-400"></span><span><span class="font-mono text-white">1:16</span> <span class="text-slate-300">regression test and 8/8 unit tests green</span></span></li>
-              <li class="flex gap-3"><span class="mt-1 h-2 w-2 flex-none rounded-full bg-emerald-400"></span><span><span class="font-mono text-white">1:31</span> <span class="text-slate-300">PR #3 opened with the red/green evidence</span></span></li>
+            <span class="chip chip-ok">✓ With Repro</span>
+            <ol class="mt-6 space-y-3.5 text-sm">
+              <li class="flex gap-3"><span class="glyph glyph-off">•</span><span><span class="font-mono text-ink">0:00</span> shoplite-coupon.mp4 goes in</span></li>
+              <li class="flex gap-3"><span class="glyph glyph-bug">✕</span><span><span class="font-mono text-ink">0:27</span> Playwright test written. It fails: bug caught</span></li>
+              <li class="flex gap-3"><span class="glyph glyph-run">◆</span><span><span class="font-mono text-ink">1:10</span> root cause found, <code class="text-ident">applyCoupon</code> patched</span></li>
+              <li class="flex gap-3"><span class="glyph glyph-fix">✓</span><span><span class="font-mono text-ink">1:16</span> regression test and 8/8 unit tests green</span></li>
+              <li class="flex gap-3"><span class="glyph glyph-fix">✓</span><span><span class="font-mono text-ink">1:31</span> PR #3 opened with the red/green evidence</span></li>
             </ol>
           </div>
         </div>
@@ -195,191 +196,189 @@
     </section>
 
     <!-- 5. How it works: the process line draws as you scroll -->
-    <section id="how" class="relative border-t border-slate-800/80 bg-slate-900/20 py-24 sm:py-32">
+    <section id="how" class="relative border-t border-line bg-surface-1 py-16 sm:py-24">
       <div class="mx-auto max-w-7xl px-4 sm:px-6">
         <div class="max-w-2xl" data-reveal>
           <p class="eyebrow">How it works</p>
-          <h2 class="mt-3 text-4xl font-semibold tracking-tight text-white sm:text-5xl">From red to green, on its own.</h2>
-          <p class="mt-4 text-lg text-slate-400">Every claim in the pull request is backed by a test that went from failing to passing.</p>
+          <h2 class="mt-3 text-4xl font-semibold tracking-tight text-ink sm:text-5xl">From red to green, on its own.</h2>
+          <p class="mt-4 text-lg text-ink-2">Every claim in the pull request is backed by a test that went from failing to passing.</p>
         </div>
 
-        <div id="process" class="process green relative mt-16">
-          <div class="absolute left-[10%] right-[10%] top-5 hidden h-0.5 overflow-hidden rounded bg-slate-800 md:block" aria-hidden="true"><span class="process-fill"></span></div>
-          <div class="absolute bottom-6 left-5 top-5 w-0.5 overflow-hidden rounded bg-slate-800 md:hidden" aria-hidden="true"><span class="process-fill vertical"></span></div>
-          <ol class="relative grid gap-10 md:grid-cols-5 md:gap-6">
+        <div id="process" class="process green relative mt-12">
+          <div class="absolute left-[10%] right-[10%] top-5 hidden h-0.5 overflow-hidden rounded bg-line md:block" aria-hidden="true"><span class="process-fill"></span></div>
+          <div class="absolute bottom-6 left-5 top-5 w-0.5 overflow-hidden rounded bg-line md:hidden" aria-hidden="true"><span class="process-fill vertical"></span></div>
+          <ol class="relative grid gap-8 md:grid-cols-5 md:gap-6">
             <li class="node lit flex gap-5 md:flex-col md:items-center md:text-center">
-              <span class="node-dot grid h-10 w-10 flex-none place-items-center rounded-full border-2 border-slate-700 bg-slate-950 font-mono text-sm">1</span>
-              <div class="node-copy"><h3 class="font-semibold text-white">Record</h3><p class="mt-1 text-sm text-slate-400">Capture the bug with any screen recorder. No steps to write down.</p></div>
+              <span class="node-dot grid h-10 w-10 flex-none place-items-center rounded-full border-2 border-line-strong bg-bg font-mono text-sm"><span class="num">1</span><svg class="ok h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+              <div class="node-copy"><h3 class="font-semibold text-ink">Record</h3><p class="mt-1 text-sm text-ink-2">Capture the bug with any screen recorder. No steps to write down.</p></div>
             </li>
             <li class="node lit flex gap-5 md:flex-col md:items-center md:text-center">
-              <span class="node-dot grid h-10 w-10 flex-none place-items-center rounded-full border-2 border-slate-700 bg-slate-950 font-mono text-sm">2</span>
-              <div class="node-copy"><h3 class="font-semibold text-white">Reproduce</h3><p class="mt-1 text-sm text-slate-400">Repro reads the video and writes a Playwright test that fails on the bug.</p></div>
+              <span class="node-dot grid h-10 w-10 flex-none place-items-center rounded-full border-2 border-line-strong bg-bg font-mono text-sm"><span class="num">2</span><svg class="ok h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+              <div class="node-copy"><h3 class="font-semibold text-ink">Reproduce</h3><p class="mt-1 text-sm text-ink-2">Repro reads the video and writes a Playwright test that fails on the bug.</p></div>
             </li>
             <li class="node lit flex gap-5 md:flex-col md:items-center md:text-center">
-              <span class="node-dot grid h-10 w-10 flex-none place-items-center rounded-full border-2 border-slate-700 bg-slate-950 font-mono text-sm">3</span>
-              <div class="node-copy"><h3 class="font-semibold text-white">Fix</h3><p class="mt-1 text-sm text-slate-400">A tool-using agent patches a copy of the code until that test passes.</p></div>
+              <span class="node-dot grid h-10 w-10 flex-none place-items-center rounded-full border-2 border-line-strong bg-bg font-mono text-sm"><span class="num">3</span><svg class="ok h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+              <div class="node-copy"><h3 class="font-semibold text-ink">Fix</h3><p class="mt-1 text-sm text-ink-2">A tool-using agent patches a copy of the code until that test passes.</p></div>
             </li>
             <li class="node lit flex gap-5 md:flex-col md:items-center md:text-center">
-              <span class="node-dot grid h-10 w-10 flex-none place-items-center rounded-full border-2 border-slate-700 bg-slate-950 font-mono text-sm">4</span>
-              <div class="node-copy"><h3 class="font-semibold text-white">Verify</h3><p class="mt-1 text-sm text-slate-400">The new test and the existing suite run again. Both must be green.</p></div>
+              <span class="node-dot grid h-10 w-10 flex-none place-items-center rounded-full border-2 border-line-strong bg-bg font-mono text-sm"><span class="num">4</span><svg class="ok h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+              <div class="node-copy"><h3 class="font-semibold text-ink">Verify</h3><p class="mt-1 text-sm text-ink-2">The new test and the existing suite run again. Both must be green.</p></div>
             </li>
             <li class="node lit flex gap-5 md:flex-col md:items-center md:text-center">
-              <span class="node-dot grid h-10 w-10 flex-none place-items-center rounded-full border-2 border-slate-700 bg-slate-950 font-mono text-sm">5</span>
-              <div class="node-copy"><h3 class="font-semibold text-white">Ship</h3><p class="mt-1 text-sm text-slate-400">A pull request with the fix, the test, timestamped steps and the evidence.</p></div>
+              <span class="node-dot grid h-10 w-10 flex-none place-items-center rounded-full border-2 border-line-strong bg-bg font-mono text-sm"><span class="num">5</span><svg class="ok h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+              <div class="node-copy"><h3 class="font-semibold text-ink">Ship</h3><p class="mt-1 text-sm text-ink-2">A pull request with the fix, the test, timestamped steps and the evidence.</p></div>
             </li>
           </ol>
         </div>
       </div>
     </section>
 
-    <!-- 6. See it run: real sample bugs, the bug plays on hover -->
-    <section id="demo" class="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32">
+    <!-- 6. See it run: real sample bugs, the bug plays on hover (tap on touch screens) -->
+    <section id="demo" class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
       <div class="flex flex-wrap items-end justify-between gap-6" data-reveal>
         <div class="max-w-2xl">
           <p class="eyebrow">See it run</p>
-          <h2 class="mt-3 text-4xl font-semibold tracking-tight text-white sm:text-5xl">Three real bugs. Pick one.</h2>
-          <p class="mt-4 text-lg text-slate-400">A small demo shop with deliberate bugs. Replays play back a recorded live run, step for step, in under half a minute.</p>
+          <h2 class="mt-3 text-4xl font-semibold tracking-tight text-ink sm:text-5xl">Three real bugs. Pick one.</h2>
+          <p class="mt-4 text-lg text-ink-2">A small demo shop with deliberate bugs. Replays play back a recorded live run, step for step, in under half a minute.</p>
         </div>
         <a href="/app" class="btn-ghost">Open the app <span aria-hidden="true">→</span></a>
       </div>
-      <div class="mt-12 grid gap-5 md:grid-cols-3">
+      <div class="mt-10 grid gap-5 md:grid-cols-3">
         <article class="card lift flex flex-col overflow-hidden" data-card data-reveal style="--i:0">
-          <div class="sample-media">
+          <div class="sample-media" role="button" tabindex="0" aria-label="Play the Coupon stacks recording">
             <img src="/static/img/poster-coupon.jpg" alt="ShopLite cart after applying SAVE10 twice: the discount shows −$6.50" width="960" height="540" loading="lazy">
             <video data-src="/media/samples/coupon.mp4" data-start="4" muted loop playsinline preload="none" aria-hidden="true"></video>
-            <span class="play-hint chip border-slate-700 bg-slate-950/80 text-slate-200"><span class="hover-only">Hover to play</span><span class="touch-only">Real recording</span></span>
+            <span class="play-hint chip border-line-strong bg-bg text-ink"><span class="hover-only">▶ Hover to play</span><span class="touch-only">▶ Tap to play</span></span>
           </div>
           <div class="flex flex-1 flex-col p-5">
-            <h3 class="font-semibold text-white">Coupon stacks</h3>
-            <p class="mt-1 flex-1 text-sm text-slate-400">Applying SAVE10 twice doubles the discount.</p>
-            <p class="mt-3 text-xs text-slate-400">Recorded run: fixed in 1:31, <a class="text-emerald-300 hover:underline" href="https://github.com/princemittalr/shoplite/pull/3" target="_blank" rel="noopener">PR #3</a></p>
-            <a href="/app?sample=coupon&amp;mode=replay" class="btn btn-primary mt-4 self-start">Watch the replay <span class="arrow" aria-hidden="true">→</span></a>
+            <h3 class="font-semibold text-ink">Coupon stacks</h3>
+            <p class="mt-1 flex-1 text-sm text-ink-2">Applying SAVE10 twice doubles the discount.</p>
+            <p class="mt-3 text-xs text-muted">Recorded run: fixed in 1:31, <a class="text-ink underline decoration-line-strong underline-offset-2" href="https://github.com/princemittalr/shoplite/pull/3" target="_blank" rel="noopener">PR #3</a></p>
+            <a href="/app?sample=coupon&amp;mode=replay" class="btn-ghost mt-4 self-start">Watch the replay <span aria-hidden="true">→</span></a>
           </div>
         </article>
         <article class="card lift flex flex-col overflow-hidden" data-card data-reveal style="--i:1">
-          <div class="sample-media">
+          <div class="sample-media" role="button" tabindex="0" aria-label="Play the Remove keeps the price recording">
             <img src="/static/img/poster-remove.jpg" alt="ShopLite cart where a removed item's price is still in the subtotal" width="960" height="540" loading="lazy">
             <video data-src="/media/samples/remove.mp4" data-start="3" muted loop playsinline preload="none" aria-hidden="true"></video>
-            <span class="play-hint chip border-slate-700 bg-slate-950/80 text-slate-200"><span class="hover-only">Hover to play</span><span class="touch-only">Real recording</span></span>
+            <span class="play-hint chip border-line-strong bg-bg text-ink"><span class="hover-only">▶ Hover to play</span><span class="touch-only">▶ Tap to play</span></span>
           </div>
           <div class="flex flex-1 flex-col p-5">
-            <h3 class="font-semibold text-white">Remove keeps the price</h3>
-            <p class="mt-1 flex-1 text-sm text-slate-400">Removing an item leaves its price in the subtotal.</p>
-            <p class="mt-3 text-xs text-slate-400">Recorded run: fixed and verified in 1:02, 9/9 tests</p>
-            <a href="/app?sample=remove&amp;mode=replay" class="btn btn-primary mt-4 self-start">Watch the replay <span class="arrow" aria-hidden="true">→</span></a>
+            <h3 class="font-semibold text-ink">Remove keeps the price</h3>
+            <p class="mt-1 flex-1 text-sm text-ink-2">Removing an item leaves its price in the subtotal.</p>
+            <p class="mt-3 text-xs text-muted">Recorded run: fixed and verified in 1:02, 9/9 tests</p>
+            <a href="/app?sample=remove&amp;mode=replay" class="btn-ghost mt-4 self-start">Watch the replay <span aria-hidden="true">→</span></a>
           </div>
         </article>
         <article class="card lift flex flex-col overflow-hidden" data-card data-reveal style="--i:2">
-          <div class="sample-media">
+          <div class="sample-media" role="button" tabindex="0" aria-label="Play the Quantity goes negative recording">
             <img src="/static/img/poster-quantity.jpg" alt="ShopLite cart with a negative quantity and price" width="960" height="540" loading="lazy">
             <video data-src="/media/samples/quantity.mp4" data-start="3" muted loop playsinline preload="none" aria-hidden="true"></video>
-            <span class="play-hint chip border-slate-700 bg-slate-950/80 text-slate-200"><span class="hover-only">Hover to play</span><span class="touch-only">Real recording</span></span>
+            <span class="play-hint chip border-line-strong bg-bg text-ink"><span class="hover-only">▶ Hover to play</span><span class="touch-only">▶ Tap to play</span></span>
           </div>
           <div class="flex flex-1 flex-col p-5">
-            <h3 class="font-semibold text-white">Quantity goes negative</h3>
-            <p class="mt-1 flex-1 text-sm text-slate-400">Pressing minus at 0 gives a negative quantity and price.</p>
-            <p class="mt-3 text-xs text-slate-400">Live only: "stop at 0", "remove at 0" and "clamp at 1" are all reasonable fixes, so there is no single recorded answer.</p>
+            <h3 class="font-semibold text-ink">Quantity goes negative</h3>
+            <p class="mt-1 flex-1 text-sm text-ink-2">Pressing minus at 0 gives a negative quantity and price.</p>
+            <p class="mt-3 text-xs text-muted">Live only: "stop at 0", "remove at 0" and "clamp at 1" are all reasonable fixes, so there is no single recorded answer.</p>
             <a href="/app#samples-wrap" class="btn-ghost mt-4 self-start">Run it live <span aria-hidden="true">→</span></a>
           </div>
         </article>
       </div>
     </section>
 
-    <!-- 7. Proof in numbers -->
-    <section id="numbers" class="border-y border-slate-800/80 bg-gradient-to-b from-slate-900/40 to-slate-950 py-20 sm:py-24">
+    <!-- 7. Proof in numbers: each number says which run it came from -->
+    <section id="numbers" class="border-y border-line bg-surface-1 py-14 sm:py-20">
       <div class="mx-auto max-w-7xl px-4 sm:px-6">
-        <dl class="grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-4">
-          <div class="flex flex-col-reverse gap-2" data-reveal style="--i:0"><dt class="text-sm text-slate-400">seconds from repro report to pull request</dt><dd class="stat-num text-5xl font-semibold text-white sm:text-6xl"><span data-count="91">91</span><span class="text-emerald-400">s</span></dd></div>
-          <div class="flex flex-col-reverse gap-2" data-reveal style="--i:1"><dt class="text-sm text-slate-400">unit tests green after the fix</dt><dd class="stat-num text-5xl font-semibold text-white sm:text-6xl"><span data-count="8">8</span><span class="text-slate-500">/</span>8</dd></div>
-          <div class="flex flex-col-reverse gap-2" data-reveal style="--i:2"><dt class="text-sm text-slate-400">model confidence in the repro steps</dt><dd class="stat-num text-5xl font-semibold text-white sm:text-6xl"><span data-count="98">98</span><span class="text-emerald-400">%</span></dd></div>
-          <div class="flex flex-col-reverse gap-2" data-reveal style="--i:3"><dt class="text-sm text-slate-400">key facts read correctly from the videos</dt><dd class="stat-num text-5xl font-semibold text-white sm:text-6xl"><span data-count="6">6</span><span class="text-slate-500">/</span>6</dd></div>
+        <dl class="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-4">
+          <div class="flex flex-col-reverse gap-1" data-reveal style="--i:0"><dt class="text-sm text-ink-2">from repro report to pull request<span class="mt-1 block font-mono text-[11px] uppercase tracking-wider text-muted">Coupon stacks run</span></dt><dd class="stat-num text-5xl font-semibold text-ink sm:text-6xl"><span data-count="91">91</span><span class="text-muted">s</span></dd></div>
+          <div class="flex flex-col-reverse gap-1" data-reveal style="--i:1"><dt class="text-sm text-ink-2">unit tests green after the fix<span class="mt-1 block font-mono text-[11px] uppercase tracking-wider text-muted">Coupon stacks run</span></dt><dd class="stat-num text-5xl font-semibold text-ink sm:text-6xl"><span data-count="8">8</span><span class="text-muted">/</span>8</dd></div>
+          <div class="flex flex-col-reverse gap-1" data-reveal style="--i:2"><dt class="text-sm text-ink-2">model confidence in the repro steps<span class="mt-1 block font-mono text-[11px] uppercase tracking-wider text-muted">Coupon stacks run</span></dt><dd class="stat-num text-5xl font-semibold text-ink sm:text-6xl"><span data-count="98">98</span><span class="text-muted">%</span></dd></div>
+          <div class="flex flex-col-reverse gap-1" data-reveal style="--i:3"><dt class="text-sm text-ink-2">key facts read correctly from the videos<span class="mt-1 block font-mono text-[11px] uppercase tracking-wider text-muted">Perception eval</span></dt><dd class="stat-num text-5xl font-semibold text-ink sm:text-6xl"><span data-count="6">6</span><span class="text-muted">/</span>6</dd></div>
         </dl>
-        <p class="mt-10 max-w-3xl text-xs leading-relaxed text-slate-400">From the recorded <em>Coupon stacks</em> run (PR #3) and the perception eval in the
-          <a class="text-slate-300 underline decoration-slate-600 underline-offset-2 hover:text-white" href="https://github.com/princemittalr/repro#results" target="_blank" rel="noopener">README</a>.
+        <p class="mt-10 max-w-3xl text-xs leading-relaxed text-muted">From the recorded <em>Coupon stacks</em> run (PR #3) and the perception eval in the
+          <a class="text-ink-2 underline decoration-line-strong underline-offset-2 hover:text-ink" href="https://github.com/princemittalr/repro#results" target="_blank" rel="noopener">README</a>.
           That run reused an earlier perception report, so the 91 seconds and its 65k tokens start at triage; perception adds about 21k to 26k tokens per video.</p>
       </div>
     </section>
 
     <!-- 8. Features bento -->
-    <section id="features" class="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32">
+    <section id="features" class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
       <div class="max-w-2xl" data-reveal>
         <p class="eyebrow">Features</p>
-        <h2 class="mt-3 text-4xl font-semibold tracking-tight text-white sm:text-5xl">An engineer's whole bug loop, automated.</h2>
+        <h2 class="mt-3 text-4xl font-semibold tracking-tight text-ink sm:text-5xl">An engineer's whole bug loop, automated.</h2>
       </div>
-      <div class="mt-12 grid gap-4 md:grid-cols-6">
-        <!-- Video understanding -->
+      <div class="mt-10 grid gap-4 md:grid-cols-6">
+        <!-- Video understanding: real keyframes from the coupon recording -->
         <article class="bento-tile card p-6 md:col-span-4" data-reveal="scale" style="--i:0" data-loop="frames">
-          <h3 class="font-semibold text-white">Understands the video</h3>
-          <p class="mt-1 max-w-lg text-sm text-slate-400">Keyframes just before and after every visible change, a per-frame transcript and a deterministic diff turn pixels into exact steps.</p>
-          <div class="frames mt-6" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-          <p class="mt-4 rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2 font-mono text-xs text-slate-300">
-            <span class="text-emerald-400">t=11.94s</span> click Apply <span class="text-slate-500">→</span> Discount <span class="text-slate-400">−$3.25</span> <span class="text-slate-500">→</span> <span class="text-rose-300">−$6.50</span>
+          <h3 class="font-semibold text-ink">Understands the video</h3>
+          <p class="mt-1 max-w-lg text-sm text-ink-2">Keyframes just before and after every visible change, a per-frame transcript and a deterministic diff turn pixels into exact steps.</p>
+          <div class="frames mt-6">
+            <figure><img src="/static/img/frame-coupon-2_06.jpg" alt="" width="240" height="135" loading="lazy"></figure>
+            <figure><img src="/static/img/frame-coupon-3_69.jpg" alt="" width="240" height="135" loading="lazy"></figure>
+            <figure><img src="/static/img/frame-coupon-6_19.jpg" alt="" width="240" height="135" loading="lazy"></figure>
+            <figure><img src="/static/img/frame-coupon-7_44.jpg" alt="" width="240" height="135" loading="lazy"></figure>
+            <figure><img src="/static/img/frame-coupon-10_62.jpg" alt="" width="240" height="135" loading="lazy"></figure>
+            <figure class="last hot"><img src="/static/img/frame-coupon-11_94.jpg" alt="" width="240" height="135" loading="lazy"></figure>
+          </div>
+          <p id="frame-caption" class="frame-caption card-2 mt-4 px-3 py-2 font-mono text-xs text-ink-2" aria-live="off">
+            <span class="text-ident">t=11.94s</span> click Apply button <span class="text-muted">→</span> Discount −$3.25 <span class="text-muted">→</span> <span class="text-bug-fg">−$6.50 ✕</span>
           </p>
         </article>
         <!-- Model routing -->
         <article class="bento-tile card p-6 md:col-span-2" data-reveal="scale" style="--i:1" data-loop="models">
-          <h3 class="font-semibold text-white">Routes each step to the right model</h3>
-          <p class="mt-1 text-sm text-slate-400">Small and fast where it can be, the largest model only when the coder fails twice.</p>
-          <div class="mt-6 rounded-xl border border-slate-800 bg-slate-950/60 p-4">
-            <p class="font-mono text-[11px] uppercase tracking-widest text-slate-400" id="route-stage">Perceive</p>
-            <p class="model-chip mt-1 text-lg font-semibold text-white" id="route-model">Nemotron 3.5 Super VL</p>
-            <p class="model-chip text-xs text-slate-400" id="route-why">reads video and keyframes</p>
+          <h3 class="font-semibold text-ink">Routes each step to the right model</h3>
+          <p class="mt-1 text-sm text-ink-2">Small and fast where it can be, the largest model only when the coder fails twice.</p>
+          <div class="card-2 mt-6 p-4">
+            <p class="font-mono text-[11px] uppercase tracking-widest text-muted" id="route-stage">Perceive</p>
+            <p class="model-chip mt-1 text-lg font-semibold text-ink" id="route-model">Nemotron 3.5 Super VL</p>
+            <p class="model-chip text-xs text-muted" id="route-why">reads video and keyframes</p>
           </div>
         </article>
-        <!-- Test generation -->
+        <!-- Test generation: syntax-coloured, ends on the real failure -->
         <article class="bento-tile card p-6 md:col-span-3" data-reveal="scale" style="--i:2" data-loop="typing">
-          <h3 class="font-semibold text-white">Writes the failing test first</h3>
-          <p class="mt-1 text-sm text-slate-400">A Playwright test, run in a sandbox, kept only if it is red on the bug.</p>
-          <pre class="mt-5 h-60 overflow-hidden rounded-xl border border-slate-800 bg-slate-950/80 p-4 font-mono text-[12px] leading-relaxed text-slate-300"><code id="typing">def test_repro(page, base_url):
-    page.goto(base_url)
-    page.get_by_test_id("add-tee").click()
-    page.get_by_test_id("add-mug").click()
-    page.get_by_test_id("coupon-input").fill("SAVE10")
-    page.get_by_test_id("apply-coupon").click()
-    discount = page.get_by_test_id("discount").inner_text()
-    page.get_by_test_id("coupon-input").fill("SAVE10")
-    page.get_by_test_id("apply-coupon").click()
-    expect(page.get_by_test_id("discount")).to_have_text(discount)</code></pre>
-          <p class="mt-2 text-xs text-slate-400">Shortened from the real test in the Coupon stacks run.</p>
+          <h3 class="font-semibold text-ink">Writes the failing test first</h3>
+          <p class="mt-1 text-sm text-ink-2">A Playwright test, run in a sandbox, kept only if it is red on the bug.</p>
+          <pre class="card-2 code typing mt-5 overflow-x-auto p-4 text-[12px] leading-relaxed"><code><span class="typed-line"><span class="k">def</span> <span class="f">test_repro</span>(page, base_url):</span><span class="typed-line">    page.<span class="f">goto</span>(base_url)</span><span class="typed-line">    page.<span class="f">get_by_test_id</span>(<span class="s">"add-tee"</span>).<span class="f">click</span>()</span><span class="typed-line">    page.<span class="f">get_by_test_id</span>(<span class="s">"add-mug"</span>).<span class="f">click</span>()</span><span class="typed-line">    page.<span class="f">get_by_test_id</span>(<span class="s">"coupon-input"</span>).<span class="f">fill</span>(<span class="s">"SAVE10"</span>)</span><span class="typed-line">    page.<span class="f">get_by_test_id</span>(<span class="s">"apply-coupon"</span>).<span class="f">click</span>()</span><span class="typed-line">    discount = page.<span class="f">get_by_test_id</span>(<span class="s">"discount"</span>).<span class="f">inner_text</span>()</span><span class="typed-line">    <span class="c"># apply the same coupon again</span></span><span class="typed-line">    page.<span class="f">get_by_test_id</span>(<span class="s">"apply-coupon"</span>).<span class="f">click</span>()</span><span class="typed-line">    <span class="f">expect</span>(page.<span class="f">get_by_test_id</span>(<span class="s">"discount"</span>)).<span class="f">to_have_text</span>(discount)</span></code></pre>
+          <p class="fail-line typing-fail mt-3 flex items-start gap-2 rounded-lg bg-bug/10 px-3 py-2 font-mono text-[11px] leading-relaxed text-bug-fg"><span>✕</span><span>FAILED test_repro · AssertionError: Locator expected to have text '-$3.25'</span></p>
+          <p class="mt-2 text-xs text-muted">Shortened from the real test and failure in the Coupon stacks run.</p>
         </article>
-        <!-- Self-verifying fix -->
+        <!-- Self-verifying fix: the real diff from PR #3 -->
         <article class="bento-tile diff-tile card p-6 md:col-span-3" data-reveal="scale" style="--i:3" data-loop="diff">
-          <h3 class="font-semibold text-white">Fixes it, then proves it</h3>
-          <p class="mt-1 text-sm text-slate-400">The agent can't edit existing tests, and it can only finish after a fully green run.</p>
-          <div class="mt-5 overflow-hidden rounded-xl border border-slate-800 bg-slate-950/80 font-mono text-[12px] leading-relaxed">
-            <p class="px-4 pt-3 text-slate-500">public/cart.js</p>
-            <p class="px-4 text-slate-400">&nbsp; if (!COUPONS[code]) { … }</p>
-            <p class="diff-old relative mx-4 my-0.5 text-rose-300"><span class="strike"></span>&nbsp; cart.coupons.push(code);</p>
-            <div class="diff-new bg-emerald-500/10 px-4 text-emerald-300">
-              <p>+ if (cart.coupons.includes(code)) {</p>
-              <p>+&nbsp;&nbsp; return { ok: true, message: `Coupon ${code} is already applied.` };</p>
-              <p>+ }</p>
-            </div>
-            <p class="px-4 pb-3 text-slate-400">&nbsp; cart.coupons.push(code);</p>
+          <h3 class="font-semibold text-ink">Fixes it, then proves it</h3>
+          <p class="mt-1 text-sm text-ink-2">The agent can't edit existing tests, and it can only finish after a fully green run.</p>
+          <div class="card-2 code mt-5 overflow-x-auto py-3 text-[12px] leading-relaxed">
+            <p class="px-4 pb-1 text-muted">public/cart.js</p>
+            <p class="diff-row"><span class="sign"> </span><span>  <span class="k">if</span> (!COUPONS[code]) { … }</span></p>
+            <div class="diff-new"><div>
+              <p class="diff-row diff-add"><span class="sign">+</span><span>  <span class="k">if</span> (cart.coupons.<span class="f">includes</span>(code)) {</span></p>
+              <p class="diff-row diff-add"><span class="sign">+</span><span>    <span class="k">return</span> { ok: <span class="k">true</span>, message: <span class="s">`Coupon ${code} is already applied.`</span> };</span></p>
+              <p class="diff-row diff-add"><span class="sign">+</span><span>  }</span></p>
+            </div></div>
+            <p class="diff-row diff-bug"><span class="sign"> </span><span>  cart.coupons.<span class="f">push</span>(code);<span class="note">  ✕ pushes the same code twice</span></span></p>
           </div>
-          <p class="mt-2 text-xs text-slate-400">The real diff from PR #3.</p>
+          <p class="mt-2 text-xs text-muted">The real diff from PR #3: a three-line guard above the line that stacked the coupon.</p>
         </article>
         <!-- Research -->
         <article class="bento-tile card p-6 md:col-span-2" data-reveal="scale" style="--i:4" data-loop="tools">
-          <h3 class="font-semibold text-white">Looks things up when it's stuck</h3>
-          <p class="mt-1 text-sm text-slate-400">Live web research with Tavily, called as a tool. Every query and source is cited in the PR.</p>
+          <h3 class="font-semibold text-ink">Looks things up when it's stuck</h3>
+          <p class="mt-1 text-sm text-ink-2">Live web research with Tavily, called as a tool. Every query and source is cited in the PR.</p>
           <ul class="mt-5 flex flex-wrap gap-1.5 font-mono text-xs" id="tools">
             <li class="chip">read_file</li><li class="chip">search_code</li><li class="chip">edit_file</li><li class="chip">run_tests</li><li class="chip">web_search</li><li class="chip">finish</li>
           </ul>
         </article>
         <!-- PR with evidence -->
         <article class="bento-tile card p-6 md:col-span-4" data-reveal="scale" style="--i:5" data-loop="checks">
-          <h3 class="font-semibold text-white">Opens a pull request with the evidence</h3>
-          <p class="mt-1 text-sm text-slate-400">The fix, the new regression test under <code class="text-slate-300">e2e/</code>, and every repro step linked to its moment in the video.</p>
-          <div class="mt-5 rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+          <h3 class="font-semibold text-ink">Opens a pull request with the evidence</h3>
+          <p class="mt-1 text-sm text-ink-2">The fix, the new regression test under <code class="text-ident">e2e/</code>, and every repro step linked to its moment in the video.</p>
+          <div class="card-2 mt-5 p-4">
             <div class="flex flex-wrap items-center gap-2">
               <span class="chip chip-ok">Open</span>
-              <a href="https://github.com/princemittalr/shoplite/pull/3" target="_blank" rel="noopener" class="min-w-0 truncate text-sm font-medium text-white hover:underline">Fix: Coupon code applies discount multiple times when applied repeatedly <span class="text-slate-400">#3</span></a>
+              <a href="https://github.com/princemittalr/shoplite/pull/3" target="_blank" rel="noopener" class="min-w-0 truncate text-sm font-medium text-ink hover:underline">Fix: Coupon code applies discount multiple times when applied repeatedly <span class="text-muted">#3</span></a>
             </div>
             <ul class="mt-3 grid gap-1.5 text-sm sm:grid-cols-3" id="checks">
-              <li class="check-row ok flex items-center gap-2 text-slate-300"><span class="tick text-emerald-400">✓</span>Regression test: red → green</li>
-              <li class="check-row ok flex items-center gap-2 text-slate-300"><span class="tick text-emerald-400">✓</span>npm test: 8/8 pass</li>
-              <li class="check-row ok flex items-center gap-2 text-slate-300"><span class="tick text-emerald-400">✓</span>3 files changed</li>
+              <li class="check-row ok flex items-center gap-2 text-ink-2"><span class="tick text-fix-fg">✓</span>Regression test: red → green</li>
+              <li class="check-row ok flex items-center gap-2 text-ink-2"><span class="tick text-fix-fg">✓</span>npm test: 8/8 pass</li>
+              <li class="check-row ok flex items-center gap-2 text-ink-2"><span class="tick text-fix-fg">✓</span>3 files changed</li>
             </ul>
           </div>
         </article>
@@ -387,59 +386,60 @@
     </section>
 
     <!-- 9. Proof: real results, not testimonials -->
-    <section id="proof" class="border-t border-slate-800/80 bg-slate-900/20 py-24 sm:py-32">
-      <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2">
+    <section id="proof" class="border-t border-line bg-surface-1 py-16 sm:py-24">
+      <div class="mx-auto grid max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2">
         <div data-reveal>
-          <p class="eyebrow">Proof, not testimonials</p>
-          <h2 class="mt-3 text-4xl font-semibold tracking-tight text-white sm:text-5xl">Read what it actually did.</h2>
-          <p class="mt-4 text-lg text-slate-400">Every card is a real run or eval result from this repository, in the agent's own words where it has them. The failures are here too.</p>
+          <p class="eyebrow eyebrow-fix">Proof, not testimonials</p>
+          <h2 class="mt-3 text-4xl font-semibold tracking-tight text-ink sm:text-5xl">Read what it actually did.</h2>
+          <p class="mt-4 text-lg text-ink-2">Every card is a real run or eval result from this repository, in the agent's own words where it has them. The failures are here too.</p>
           <div class="mt-8 flex items-center gap-2">
-            <button id="stack-prev" class="btn-ghost px-2.5" aria-label="Previous card"><svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
-            <button id="stack-next" class="btn-ghost px-2.5" aria-label="Next card"><svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-            <span id="stack-count" class="ml-2 font-mono text-xs text-slate-400" aria-live="polite">1 / 4</span>
+            <button id="stack-prev" class="btn-ghost h-10 w-10 px-0" aria-label="Previous card"><svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <button id="stack-next" class="btn-ghost h-10 w-10 px-0" aria-label="Next card"><svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+            <span id="stack-count" class="ml-2 font-mono text-xs text-muted" aria-live="polite">1 / 4</span>
+            <span class="ml-2 text-xs text-muted md:hidden">Swipe to shuffle</span>
           </div>
         </div>
-        <div id="stack" class="stack pb-12" tabindex="0" aria-roledescription="carousel" aria-label="Real run results. Use the arrow keys to shuffle.">
-          <article class="card flex min-h-[19rem] flex-col bg-slate-900 p-6 shadow-2xl shadow-black/40" data-pos="0">
-            <div class="flex flex-wrap items-center gap-2"><span class="chip chip-ok">Fixed · PR #3</span><span class="chip">Coupon stacks</span></div>
-            <blockquote class="mt-4 flex-1 text-lg leading-relaxed text-slate-200">"The applyCoupon function in cart.js did not check if a coupon code was already present in cart.coupons before pushing it again, causing duplicate coupon entries and stacked discounts."</blockquote>
-            <p class="mt-4 text-xs text-slate-400">Root cause written by the fix agent · 8/8 tests green · 65,341 tokens · 1:31</p>
-            <a class="mt-3 text-sm text-emerald-300 hover:underline" href="https://github.com/princemittalr/shoplite/pull/3" target="_blank" rel="noopener">Read PR #3 on GitHub ↗</a>
+        <div id="stack" class="stack pb-12" tabindex="0" aria-roledescription="carousel" aria-label="Real run results. Use the arrow keys or swipe to shuffle.">
+          <article class="card-2 flex min-h-[19rem] flex-col rounded-2xl p-6 shadow-2xl shadow-black/40" data-pos="0">
+            <div class="flex flex-wrap items-center gap-2"><span class="chip chip-ok">✓ Fixed · PR #3</span><span class="chip">Coupon stacks</span></div>
+            <blockquote class="mt-4 flex-1 text-lg leading-relaxed text-ink">"The applyCoupon function in cart.js did not check if a coupon code was already present in cart.coupons before pushing it again, causing duplicate coupon entries and stacked discounts."</blockquote>
+            <p class="mt-4 text-xs text-muted">Root cause written by the fix agent · 8/8 tests green · 65,341 tokens · 1:31</p>
+            <a class="mt-3 text-sm text-ink underline decoration-line-strong underline-offset-2 hover:decoration-ink" href="https://github.com/princemittalr/shoplite/pull/3" target="_blank" rel="noopener">Read PR #3 on GitHub ↗</a>
           </article>
-          <article class="card flex min-h-[19rem] flex-col bg-slate-900 p-6 shadow-2xl shadow-black/40" data-pos="1">
-            <div class="flex flex-wrap items-center gap-2"><span class="chip chip-ok">Fixed · verified</span><span class="chip">Remove keeps the price</span></div>
-            <blockquote class="mt-4 flex-1 text-lg leading-relaxed text-slate-200">"The removeItem function in public/cart.js removed the item from the cart but did not adjust the cart's running subtotal, causing the displayed totals to remain stale after removal."</blockquote>
-            <p class="mt-4 text-xs text-slate-400">Root cause written by the fix agent · 9/9 tests green · 55,838 tokens · 1:02 · PR not requested on this run</p>
-            <a class="mt-3 text-sm text-emerald-300 hover:underline" href="/app?sample=remove&amp;mode=replay">Watch the replay →</a>
+          <article class="card-2 flex min-h-[19rem] flex-col rounded-2xl p-6 shadow-2xl shadow-black/40" data-pos="1">
+            <div class="flex flex-wrap items-center gap-2"><span class="chip chip-ok">✓ Fixed · verified</span><span class="chip">Remove keeps the price</span></div>
+            <blockquote class="mt-4 flex-1 text-lg leading-relaxed text-ink">"The removeItem function in public/cart.js removed the item from the cart but did not adjust the cart's running subtotal, causing the displayed totals to remain stale after removal."</blockquote>
+            <p class="mt-4 text-xs text-muted">Root cause written by the fix agent · 9/9 tests green · 55,838 tokens · 1:02 · PR not requested on this run</p>
+            <a class="mt-3 text-sm text-ink underline decoration-line-strong underline-offset-2 hover:decoration-ink" href="/app?sample=remove&amp;mode=replay">Watch the replay →</a>
           </article>
-          <article class="card flex min-h-[19rem] flex-col bg-slate-900 p-6 shadow-2xl shadow-black/40" data-pos="2">
-            <div class="flex flex-wrap items-center gap-2"><span class="chip chip-red">Failed, then fixed</span><span class="chip">First coupon run</span></div>
-            <blockquote class="mt-4 flex-1 text-lg leading-relaxed text-slate-200">The first coupon run failed and cost 196k tokens. <code class="text-sky-300">read_file</code> padded line numbers with spaces, and both Super and Ultra read the padding as indentation, so all 20 edits missed by two spaces.</blockquote>
-            <p class="mt-4 text-xs text-slate-400">Fix: line numbers are now tab-separated and edits tolerate indentation. From the README results.</p>
-            <a class="mt-3 text-sm text-emerald-300 hover:underline" href="https://github.com/princemittalr/repro#results" target="_blank" rel="noopener">Read the results ↗</a>
+          <article class="card-2 flex min-h-[19rem] flex-col rounded-2xl p-6 shadow-2xl shadow-black/40" data-pos="2">
+            <div class="flex flex-wrap items-center gap-2"><span class="chip chip-red">✕ Failed, then fixed</span><span class="chip">First coupon run</span></div>
+            <blockquote class="mt-4 flex-1 text-lg leading-relaxed text-ink">The first coupon run failed and cost 196k tokens. <code class="text-ident">read_file</code> padded line numbers with spaces, and both Super and Ultra read the padding as indentation, so all 20 edits missed by two spaces.</blockquote>
+            <p class="mt-4 text-xs text-muted">Fix: line numbers are now tab-separated and edits tolerate indentation. From the README results.</p>
+            <a class="mt-3 text-sm text-ink underline decoration-line-strong underline-offset-2 hover:decoration-ink" href="https://github.com/princemittalr/repro#results" target="_blank" rel="noopener">Read the results ↗</a>
           </article>
-          <article class="card flex min-h-[19rem] flex-col bg-slate-900 p-6 shadow-2xl shadow-black/40" data-pos="3">
-            <div class="flex flex-wrap items-center gap-2"><span class="chip chip-amber">Ambiguous</span><span class="chip">Quantity goes negative</span></div>
-            <blockquote class="mt-4 flex-1 text-lg leading-relaxed text-slate-200">The test is red on the buggy app every time, but green on the reference fix in only about half the runs, because "stop at 0", "remove at 0" and "clamp at 1" are all reasonable fixes.</blockquote>
-            <p class="mt-4 text-xs text-slate-400">Reproduce eval, reported as a reasonable alternative rather than forced to match.</p>
-            <a class="mt-3 text-sm text-emerald-300 hover:underline" href="https://github.com/princemittalr/repro#results" target="_blank" rel="noopener">See the eval ↗</a>
+          <article class="card-2 flex min-h-[19rem] flex-col rounded-2xl p-6 shadow-2xl shadow-black/40" data-pos="3">
+            <div class="flex flex-wrap items-center gap-2"><span class="chip chip-amber">? Ambiguous</span><span class="chip">Quantity goes negative</span></div>
+            <blockquote class="mt-4 flex-1 text-lg leading-relaxed text-ink">The test is red on the buggy app every time, but green on the reference fix in only about half the runs, because "stop at 0", "remove at 0" and "clamp at 1" are all reasonable fixes.</blockquote>
+            <p class="mt-4 text-xs text-muted">Reproduce eval, reported as a reasonable alternative rather than forced to match.</p>
+            <a class="mt-3 text-sm text-ink underline decoration-line-strong underline-offset-2 hover:decoration-ink" href="https://github.com/princemittalr/repro#results" target="_blank" rel="noopener">See the eval ↗</a>
           </article>
         </div>
       </div>
     </section>
 
     <!-- 10. Final CTA: click to success -->
-    <section id="cta" class="relative overflow-hidden py-28 sm:py-36">
-      <div class="glow left-1/2 top-1/2 h-80 w-[36rem] -translate-x-1/2 -translate-y-1/2 bg-emerald-500/15" aria-hidden="true"></div>
+    <section id="cta" class="relative overflow-hidden py-20 sm:py-28">
+      <div class="glow glow-fix left-1/2 top-1/2 h-80 w-[36rem] -translate-x-1/2 -translate-y-1/2" aria-hidden="true"></div>
       <div class="relative mx-auto max-w-3xl px-4 text-center sm:px-6" data-reveal>
-        <h2 class="text-5xl font-semibold tracking-tight text-white sm:text-6xl">Got a bug? <span class="text-emerald-400">Show it.</span></h2>
-        <p class="mx-auto mt-5 max-w-xl text-lg text-slate-400">Watch a recorded run go from red to green, then try your own recording.</p>
+        <h2 class="text-5xl font-semibold tracking-tight text-ink sm:text-6xl">Got a bug? <span class="text-fix-fg">Show it.</span></h2>
+        <p class="mx-auto mt-5 max-w-xl text-lg text-ink-2">Watch a recorded run go from red to green, then try your own recording.</p>
         <div class="mt-10 flex flex-wrap items-center justify-center gap-3">
           <a id="cta-btn" href="/app?sample=coupon&amp;mode=replay" class="btn btn-primary btn-lg cta-morph" data-state="idle">
             <span class="state state-idle">Fix a sample bug <svg viewBox="0 0 24 24" class="arrow h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
             <span class="state state-working"><span class="spinner"></span>Watching the video…</span>
-            <span class="state state-caught">Bug caught: red test</span>
-            <span class="state state-fixed"><svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Fixed. Opening the run…</span>
+            <span class="state state-caught"><span class="morph-icon grid h-5 w-5 place-items-center rounded-full bg-ink text-[11px] font-bold text-bug">✕</span>Bug caught: red test</span>
+            <span class="state state-fixed"><span class="morph-icon grid h-5 w-5 place-items-center rounded-full bg-bg text-fix-fg"><svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Fixed. Opening the run…</span>
           </a>
           <a href="/app" class="btn-ghost btn-lg">Upload a recording</a>
         </div>
@@ -448,45 +448,45 @@
   </main>
 
   <!-- 11. Footer -->
-  <footer class="border-t border-slate-800/80 bg-slate-950">
-    <div class="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
+  <footer class="border-t border-line bg-bg">
+    <div class="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-4">
       <div class="md:col-span-2">
         <a href="/" class="flex items-center gap-2.5">
-          <span class="grid h-8 w-8 place-items-center rounded-lg bg-emerald-500 text-slate-950"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
-          <span class="text-lg font-semibold tracking-tight text-white">Repro</span>
+          <span class="logo-mark"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+          <span class="text-lg font-semibold tracking-tight text-ink">Repro</span>
         </a>
-        <p class="mt-3 max-w-sm text-sm text-slate-400">Show it the bug. It ships the fix. Built for the Nebius x NVIDIA Global AI Hackathon, Coding and Agentic Engineering track.</p>
-        <p class="mt-5 text-xs uppercase tracking-widest text-slate-500">Built with</p>
+        <p class="mt-3 max-w-sm text-sm text-ink-2">Show it the bug. It ships the fix. Built for the Nebius x NVIDIA Global AI Hackathon, Coding and Agentic Engineering track.</p>
+        <p class="mt-5 text-xs uppercase tracking-widest text-muted">Built with</p>
         <ul class="mt-2 flex flex-wrap gap-2 text-sm">
           <li class="chip">NVIDIA Nemotron</li><li class="chip">Nebius Token Factory</li><li class="chip">Tavily</li><li class="chip">Playwright</li><li class="chip">FastAPI</li>
         </ul>
       </div>
       <div>
-        <p class="text-sm font-semibold text-white">Product</p>
-        <ul class="mt-3 space-y-2 text-sm text-slate-400">
-          <li><a class="hover:text-white" href="/app">Try it free</a></li>
-          <li><a class="hover:text-white" href="#how">How it works</a></li>
-          <li><a class="hover:text-white" href="#features">Features</a></li>
-          <li><a class="hover:text-white" href="#proof">Proof</a></li>
+        <p class="text-sm font-semibold text-ink">Product</p>
+        <ul class="mt-3 space-y-2 text-sm text-ink-2">
+          <li><a class="hover:text-ink" href="/app">Try it free</a></li>
+          <li><a class="hover:text-ink" href="/#how">How it works</a></li>
+          <li><a class="hover:text-ink" href="/#features">Features</a></li>
+          <li><a class="hover:text-ink" href="/#proof">Proof</a></li>
         </ul>
       </div>
       <div>
-        <p class="text-sm font-semibold text-white">Project</p>
-        <ul class="mt-3 space-y-2 text-sm text-slate-400">
-          <li><a class="hover:text-white" href="https://github.com/princemittalr/repro" target="_blank" rel="noopener">Source on GitHub</a></li>
-          <li><a class="hover:text-white" href="https://github.com/princemittalr/repro/blob/main/docs/SETUP.md" target="_blank" rel="noopener">Setup docs</a></li>
-          <li><a class="hover:text-white" href="https://github.com/princemittalr/shoplite" target="_blank" rel="noopener">ShopLite demo app</a></li>
-          <li><a class="hover:text-white" href="https://github.com/princemittalr/repro/issues" target="_blank" rel="noopener">Report an issue</a></li>
+        <p class="text-sm font-semibold text-ink">Project</p>
+        <ul class="mt-3 space-y-2 text-sm text-ink-2">
+          <li><a class="hover:text-ink" href="https://github.com/princemittalr/repro" target="_blank" rel="noopener">Source on GitHub</a></li>
+          <li><a class="hover:text-ink" href="https://github.com/princemittalr/repro/blob/main/docs/SETUP.md" target="_blank" rel="noopener">Setup docs</a></li>
+          <li><a class="hover:text-ink" href="https://github.com/princemittalr/shoplite" target="_blank" rel="noopener">ShopLite demo app</a></li>
+          <li><a class="hover:text-ink" href="https://github.com/princemittalr/repro/issues" target="_blank" rel="noopener">Report an issue</a></li>
         </ul>
       </div>
     </div>
-    <div class="border-t border-slate-800/80">
-      <p class="mx-auto max-w-7xl px-4 py-5 text-xs text-slate-500 sm:px-6">MIT licensed. Every number on this page comes from a real run or eval in the repository.</p>
+    <div class="border-t border-line">
+      <p class="mx-auto max-w-7xl px-4 py-5 text-xs text-muted sm:px-6">MIT licensed. Every number on this page comes from a real run or eval in the repository.</p>
     </div>
   </footer>
 
-  <!-- Run pings: real runs from /api/recent, at most 3 per visit -->
-  <div id="pings" class="pointer-events-none fixed bottom-5 left-5 z-30 hidden w-80 max-w-[calc(100vw-2.5rem)] sm:block" aria-live="polite"></div>
+  <!-- Run pings: real runs from /api/recent, at most 3 per visit, bottom-right, only after the hero -->
+  <div id="pings" class="pointer-events-none fixed bottom-5 right-5 z-30 hidden w-80 max-w-[calc(100vw-2.5rem)] sm:block" aria-live="polite"></div>
 
   <script src="/static/js/fx.js"></script>
   <script src="/static/js/landing.js"></script>
